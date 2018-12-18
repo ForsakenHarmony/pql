@@ -4040,10 +4040,10 @@ humanize-ms@^1.2.1:
   dependencies:
     ms "^2.0.0"
 
-husky@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/husky/-/husky-1.2.1.tgz#33628f7013e345c1790a4dbe4642ad047f772dee"
-  integrity sha512-4Ylal3HWhnDvIszuiyLoVrSGI7QLg/ogkNCoHE34c+yZYzb9kBZNrlTOsdw92cGi3cJT8pPb6CdVfxFkLnc8Dg==
+husky@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/husky/-/husky-1.3.0.tgz#fbb97b5e52739d945fd86c3bf92def0ea60175c4"
+  integrity sha512-0Yfh4PkWr8Nrume/lEMgSgK5zg8Q19jGM7jDmN7H92VrqgcYSbn+CM1iLGmAvQSNWuaPx9iq/rq/4Y8LPX6dLA==
   dependencies:
     cosmiconfig "^5.0.7"
     execa "^1.0.0"
@@ -5444,10 +5444,10 @@ merge2@^1.2.3:
   resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.2.3.tgz#7ee99dbd69bb6481689253f018488a1b902b0ed5"
   integrity sha512-gdUU1Fwj5ep4kplwcmftruWofEFt6lfpkkr3h860CXbAB9c3hGb55EOL2ali0Td5oebvW0E1+3Sr+Ur7XfKpRA==
 
-microbundle@^0.8.4:
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/microbundle/-/microbundle-0.8.4.tgz#72f08b6fac0f166e07ab6b9f77d43c0e84d54510"
-  integrity sha512-5mBtwzCQPVlPUDDDG26NYyVado9SFcOirmOSVG96zObsKaaqmvaNSSfzFa/+5sb6Gc1T3Ty0o+0RDM/KYnD+9g==
+microbundle@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/microbundle/-/microbundle-0.9.0.tgz#bbec53047ff238c592aba0e5fd8fea3ce7654de3"
+  integrity sha512-wceG5fWCig3AKUpYmlzBSGrPgtbO1y5zFxpgLQxQq67crWYYKAvjH6qRFHgIbslrhWckomu9B410fdfECdeXWw==
   dependencies:
     "@babel/core" "^7.1.6"
     "@babel/plugin-proposal-class-properties" "7.1.0"
@@ -5475,7 +5475,6 @@ microbundle@^0.8.4:
     rollup-plugin-postcss "^1.6.1"
     rollup-plugin-preserve-shebang "^0.1.6"
     rollup-plugin-sizes "^0.4.2"
-    rollup-plugin-strict-alias "^1.0.0"
     rollup-plugin-terser "^3.0.0"
     rollup-plugin-typescript2 "^0.18.0"
     sade "^1.4.0"
@@ -7748,11 +7747,6 @@ rollup-plugin-sizes@^0.4.2:
     lodash.foreach "^4.5.0"
     lodash.sumby "^4.6.0"
     module-details-from-path "^1.0.3"
-
-rollup-plugin-strict-alias@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-strict-alias/-/rollup-plugin-strict-alias-1.0.0.tgz#7079ee25785c5f9506e4430b5abff4c581ac8cfc"
-  integrity sha1-cHnuJXhcX5UG5EMLWr/0xYGsjPw=
 
 rollup-plugin-terser@^3.0.0:
   version "3.0.0"
