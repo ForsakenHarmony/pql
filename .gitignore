@@ -1,0 +1,12 @@
+# editors
+.vscode
+.idea
+
+# nodejs
+node_modules
+package-lock.json
+
+# build artifacts
+.rpt2*
+.rts2*
+dist

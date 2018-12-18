@@ -1,0 +1,22 @@
+{
+  "name": "@pql/fetch",
+  "version": "0.1.0",
+  "description": "Fetch transport for pql",
+  "source": "src/index.ts",
+  "typings": "dist/index.d.ts",
+  "module": "dist/es/index.js",
+  "main": "dist/pql-fetch.js",
+  "umd:main": "dist/pql-fetch.umd.js",
+  "repository": "ForsakenHarmony/pql",
+  "author": "Leah <me@hrmny.pw>",
+  "license": "MIT",
+  "dependencies": {
+    "@pql/observable": "^0.1.0",
+    "@pql/client": "^0.1.0"
+  },
+  "scripts": {
+    "build": "npm-run-all --silent -p build:*",
+    "build:ts": "tsc",
+    "build:main": "microbundle src/index.ts -f umd,cjs"
+  }
+}

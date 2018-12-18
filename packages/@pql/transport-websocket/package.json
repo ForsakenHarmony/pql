@@ -1,0 +1,24 @@
+{
+  "name": "@pql/websocket",
+  "version": "0.1.0",
+  "description": "Websocket transport for pql",
+  "source": "src/index.ts",
+  "typings": "dist/index.d.ts",
+  "module": "dist/es/index.js",
+  "main": "dist/pql-websocket.js",
+  "umd:main": "dist/pql-websocket.umd.js",
+  "repository": "ForsakenHarmony/pql",
+  "author": "Leah <me@hrmny.pw>",
+  "license": "MIT",
+  "dependencies": {
+    "@pql/observable": "^0.1.0",
+    "@pql/client": "^0.1.0",
+    "is-offline": "^2.1.0",
+    "sockette": "^2.0.0"
+  },
+  "scripts": {
+    "build": "npm-run-all --silent -p build:*",
+    "build:ts": "tsc",
+    "build:main": "microbundle src/index.ts -f umd,cjs"
+  }
+}
