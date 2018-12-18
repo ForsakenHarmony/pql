@@ -20,5 +20,8 @@
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
     "build:main": "microbundle src/index.ts -f umd,cjs"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

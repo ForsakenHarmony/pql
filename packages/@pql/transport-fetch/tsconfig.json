@@ -18,7 +18,7 @@
     "lib": ["es6", "dom", "esnext"],
     "outDir": "dist/es",
     "baseUrl": ".",
-    "paths": { "*" : ["typings/*"] }
+    "paths": { "*": ["typings/*"] }
   },
   "include": ["src/**/*.ts", "typings/**/*.d.ts"]
 }
