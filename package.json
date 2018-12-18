@@ -4,7 +4,7 @@
     "@pql/*"
   ],
   "scripts": {
-    "build": "lerna run build --parallel --stream",
+    "build": "lerna run build --sort --stream",
     "lint": "lerna run lint",
     "test": "yarn build && yarn test:all && yarn lint",
     "test:all": "lerna run test",
