@@ -11,8 +11,8 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "dependencies": {
-    "@pql/observable": "^0.1.0",
     "@pql/client": "^0.1.0",
+    "@pql/observable": "^0.1.0",
     "is-offline": "^2.1.0",
     "sockette": "^2.0.0"
   },

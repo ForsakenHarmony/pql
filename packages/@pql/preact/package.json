@@ -1,22 +1,25 @@
 {
-  "name": "@pql/fetch",
+  "name": "@pql/preact",
+  "private": true,
   "version": "0.1.0",
-  "description": "Fetch transport for pql",
+  "description": "Preact integration for pql",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
   "module": "dist/es/index.js",
-  "main": "dist/pql-fetch.js",
-  "umd:main": "dist/pql-fetch.umd.js",
+  "main": "dist/pql-preact.js",
+  "umd:main": "dist/pql-preact.umd.js",
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
-  "dependencies": {
-    "@pql/client": "^0.1.0",
-    "@pql/observable": "^0.1.0"
+  "peerDependencies": {
+    "preact": "^8.3.1"
   },
   "scripts": {
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
     "build:main": "microbundle src/index.ts -f umd,cjs"
+  },
+  "devDependencies": {
+    "preact": "^8.3.1"
   }
 }
