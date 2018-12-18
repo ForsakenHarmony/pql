@@ -34,7 +34,7 @@ function compose<Vars extends OperationVariables, Res>(
   return next(ctx);
 }
 
-export default class Client {
+export class Client {
   constructor(
     private transport: GqlTransport,
     private middleware: Array<MiddlewareFn<any, any>> = []
