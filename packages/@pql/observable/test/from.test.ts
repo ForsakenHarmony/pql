@@ -57,7 +57,7 @@ test('throws if @@observable property is not a method', t => {
   t.throws(() =>
     Observable.from({
       [Symbol.observable]: 1,
-    })
+    } as unknown as Observable<any>)
   );
 });
 
