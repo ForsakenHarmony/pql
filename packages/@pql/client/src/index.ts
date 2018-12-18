@@ -13,15 +13,17 @@ import { Observable } from '@pql/observable';
 
 export * from './types';
 
-function compose<Ctx, Res>(
-  ctx: Ctx,
-  middleware: Array<MiddlewareFn<Ctx, Res>>,
-  exec: (ctx: Ctx) => Observable<Res>
-): Observable<Res> {
+function compose<Vars extends OperationVariables, Res>(
+  ctx: Operation<Vars>,
+  middleware: Array<MiddlewareFn<Vars, Res>>,
+  exec: (ctx: Operation<Vars>) => Observable<OperationResult<Res>>
+): Observable<OperationResult<Res>> {
   let index = 0;
   let lastCtx = ctx;
 
-  function next(ctx: Ctx = lastCtx): Observable<Res> {
+  function next(
+    ctx: Operation<Vars> = lastCtx
+  ): Observable<OperationResult<Res>> {
     lastCtx = ctx;
     if (index >= middleware.length) {
       return exec(ctx);
@@ -35,14 +37,14 @@ function compose<Ctx, Res>(
 export default class Client {
   constructor(
     private transport: GqlTransport,
-    private middleware: Array<MiddlewareFn<any, OperationResult<any>>> = []
+    private middleware: Array<MiddlewareFn<any, any>> = []
   ) {}
 
   async query<T, Vars>({
     query,
     variables,
   }: QueryOptions<Vars>): Promise<OperationResult<T>> {
-    const op: Operation<Vars> = query<Vars>(variables);
+    const op = query(variables);
     return this.run<T, Vars>(op);
   }
 
@@ -50,7 +52,7 @@ export default class Client {
     mutation,
     variables,
   }: MutationOptions<Vars>): Promise<OperationResult<T>> {
-    const op: Operation<Vars> = mutation<Vars>(variables);
+    const op = mutation(variables);
     return this.run<T, Vars>(op);
   }
 
@@ -63,7 +65,7 @@ export default class Client {
       operation,
       this.middleware,
       this.transport.query
-    ).forEach((val: OperationResult<T>, cancel) => {
+    ).forEach((val: OperationResult<T>, cancel: () => void) => {
       res = val;
       cancel();
     });
@@ -77,22 +79,26 @@ export default class Client {
     subscription,
     variables,
   }: SubscriptionOptions<T, Vars>): Observable<OperationResult<T>> {
-    const op: Operation<Vars> = subscription<Vars>(variables);
+    const op = subscription(variables);
 
-    return this.transport.subscribe<T, Vars>(op);
+    return compose<Vars, T>(
+      op,
+      this.middleware,
+      this.transport.subscribe
+    );
   }
 }
 
 const getOpname = /(query|mutation|subsciption) ?([\w\d-_]+)? ?\(.*?\)? {/;
 
-export function gql(str: string): OperationFactory {
+export function gql<Vars extends OperationVariables>(
+  str: string
+): OperationFactory<Vars> {
   str = Array.isArray(str) ? str.join('') : str;
   const name = getOpname.exec(str);
 
-  return function<Variables = OperationVariables>(
-    variables?: Variables
-  ): Operation<Variables> {
-    const data: Operation<Variables> = { query: str };
+  return function(variables?: Vars): Operation<Vars> {
+    const data: Operation<Vars> = { query: str };
 
     if (variables) data.variables = variables;
     if (name && name.length) {

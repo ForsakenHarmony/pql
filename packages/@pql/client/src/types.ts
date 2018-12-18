@@ -1,11 +1,11 @@
 import { GraphQLError } from 'graphql';
 import { Observable } from '@pql/observable';
 
-export type OperationFactory = <Vars = OperationVariables>(
+export type OperationFactory<Vars extends OperationVariables> = (
   vars?: Vars
 ) => Operation<Vars>;
 
-export type Operation<Variables = OperationVariables> = {
+export type Operation<Variables extends OperationVariables> = {
   query: string;
   operationName?: string;
   variables?: Variables;
@@ -21,17 +21,17 @@ export interface OperationOptions<Variables = OperationVariables> {
 
 export interface QueryOptions<Variables = OperationVariables>
   extends OperationOptions<Variables> {
-  query: OperationFactory;
+  query: OperationFactory<Variables>;
 }
 
 export interface MutationOptions<Variables = OperationVariables>
   extends OperationOptions<Variables> {
-  mutation: OperationFactory;
+  mutation: OperationFactory<Variables>;
 }
 
 export interface SubscriptionOptions<T, Variables = OperationVariables>
   extends OperationOptions<Variables> {
-  subscription: OperationFactory;
+  subscription: OperationFactory<Variables>;
   handler: (data?: T, err?: any) => void;
 }
 
@@ -40,15 +40,10 @@ export type OperationResult<T> = {
   errors: GraphQLError[];
 };
 
-export type MiddlewareFn<Ctx, Res> = (
-  ctx: Ctx,
-  next: (ctx: Ctx) => Observable<Res>
-) => Observable<Res>;
-
-export type ClientOptions = {
-  transport: GqlTransport;
-  middleware: Array<MiddlewareFn<any, any>>;
-};
+export type MiddlewareFn<Vars, Res> = (
+  ctx: Operation<Vars>,
+  next: (ctx: Operation<Vars>) => Observable<OperationResult<Res>>
+) => Observable<OperationResult<Res>>;
 
 export type Client = {
   query<T, Vars = OperationVariables>(

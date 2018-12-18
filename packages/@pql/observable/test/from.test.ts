@@ -55,9 +55,9 @@ test.skip('wraps the input if it is not an instance of Observable', t => {
 test('throws if @@observable property is not a method', t => {
   // @ts-ignore
   t.throws(() =>
-    Observable.from({
+    Observable.from(({
       [Symbol.observable]: 1,
-    } as unknown as Observable<any>)
+    } as unknown) as Observable<any>)
   );
 });
 
