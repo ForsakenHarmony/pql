@@ -11,8 +11,7 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "devDependencies": {
-    "es-observable-tests": "^0.3.0",
-    "ts-node": "^7.0.1"
+    "es-observable-tests": "^0.3.0"
   },
   "scripts": {
     "build": "npm-run-all --silent -p build:*",

@@ -66,7 +66,7 @@ export class Observable<T> implements IObservable<T> {
 
   // Converts items to an Observable
   static of<T>(...items: T[]): Observable<T> {
-    return Observable.fromIterator.call(this, items);
+    return Observable.fromIterator.call(this, items) as Observable<T>;
   }
 
   private static fromIterator<T>(iter: Iterable<T>): Observable<T> {
@@ -92,7 +92,9 @@ export class Observable<T> implements IObservable<T> {
         ? (obs as Observable<T>)
         : new C(observer => (obs as Observable<T>).subscribe(observer));
     } else if (hasMethod(observable, Symbol.iterator)) {
-      return Observable.fromIterator.call(C, observable as Iterable<T>);
+      return Observable.fromIterator.call(C, observable as Iterable<
+        T
+      >) as Observable<T>;
     } else {
       throw new TypeError(observable + ' is not observable');
     }
@@ -130,13 +132,12 @@ export class Observable<T> implements IObservable<T> {
         complete: res,
         error: rej,
       });
-      if (unsubbed) {
-        sub.unsubscribe();
-      }
       unsub = () => {
         unsubbed = true;
         sub.unsubscribe();
+        res();
       };
+      unsubbed && unsub();
     });
   }
 

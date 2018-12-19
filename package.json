@@ -7,9 +7,10 @@
     "build": "lerna run build --sort --stream",
     "lint": "lerna run lint",
     "test": "yarn build && yarn test:all && yarn lint",
-    "test:all": "lerna run test",
+    "test:all": "lerna run test --stream --parallel",
     "publish": "lerna publish",
-    "prettier": "prettier **/*.{js,ts,json,css,md,yml} --write"
+    "prettier": "prettier **/*.{js,ts,json,css,md,yml} --write",
+    "prepare": "npm run -s build"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
@@ -23,7 +24,8 @@
     "microbundle": "^0.9.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.15.3",
-    "typescript": "^3.2.2"
+    "typescript": "^3.2.2",
+    "ts-node": "^7.0.1"
   },
   "husky": {
     "hooks": {

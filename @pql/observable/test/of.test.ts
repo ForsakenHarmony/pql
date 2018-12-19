@@ -12,6 +12,7 @@ test('is a method on Observable', t => {
 
 test('uses the this value if it is a function', t => {
   let usesThis = false;
+  // @ts-ignore
   Observable.of.call(function() {
     usesThis = true;
   });

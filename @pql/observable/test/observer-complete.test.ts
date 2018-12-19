@@ -87,6 +87,15 @@ test('does not forward when the subscription is cancelled', t => {
   t.is(count, 0);
 });
 
+test('promise resolves when the subscription is cancelled', async t => {
+  let list: number[] = [];
+  await Observable.of(1,2).forEach((i, cancel) => {
+    list.push(i);
+    cancel();
+  });
+  t.deepEqual(list, [1]);
+});
+
 // TODO?: we have a sync implementation
 test.skip('queues if the subscription is not initialized', async t => {
   let completed = false;

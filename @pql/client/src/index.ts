@@ -40,7 +40,7 @@ export class Client {
     private middleware: Array<MiddlewareFn<any, any>> = []
   ) {}
 
-  async query<T, Vars>({
+  query<T, Vars = {}>({
     query,
     variables,
   }: QueryOptions<Vars>): Promise<OperationResult<T>> {
@@ -48,7 +48,7 @@ export class Client {
     return this.run<T, Vars>(op);
   }
 
-  async mutate<T, Vars>({
+  mutate<T, Vars = {}>({
     mutation,
     variables,
   }: MutationOptions<Vars>): Promise<OperationResult<T>> {
@@ -56,23 +56,23 @@ export class Client {
     return this.run<T, Vars>(op);
   }
 
-  private async run<T, Vars>(
+  private run<T, Vars>(
     operation: Operation<Vars>
   ): Promise<OperationResult<T>> {
     let res: OperationResult<T> | undefined;
-
-    await compose(
+    return compose(
       operation,
       this.middleware,
-      this.transport.query
-    ).forEach((val: OperationResult<T>, cancel: () => void) => {
-      res = val;
-      cancel();
-    });
-
-    if (!res) throw new Error("Transport didn't return any value");
-
-    return res;
+      this.transport.query.bind(this.transport)
+    )
+      .forEach((val: OperationResult<T>, cancel: () => void) => {
+        res = val;
+        cancel();
+      })
+      .then(() => {
+        if (!res) throw new Error("Transport didn't return any value");
+        return res;
+      });
   }
 
   subscribe<T, Vars>({
@@ -84,7 +84,7 @@ export class Client {
     return compose<Vars, T>(
       op,
       this.middleware,
-      this.transport.subscribe
+      this.transport.subscribe.bind(this.transport) as any
     );
   }
 }
@@ -92,13 +92,13 @@ export class Client {
 const getOpname = /(query|mutation|subsciption) ?([\w\d-_]+)? ?\(.*?\)? {/;
 
 export function gql<Vars extends OperationVariables>(
-  str: string
+  str: string | TemplateStringsArray
 ): OperationFactory<Vars> {
-  str = Array.isArray(str) ? str.join('') : str;
-  const name = getOpname.exec(str);
+  const query = Array.isArray(str) ? str.join('') : <string>str;
+  const name = getOpname.exec(query);
 
   return function(variables?: Vars): Operation<Vars> {
-    const data: Operation<Vars> = { query: str };
+    const data: Operation<Vars> = { query };
 
     if (variables) data.variables = variables;
     if (name && name.length) {

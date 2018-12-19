@@ -33,7 +33,7 @@ const defaultOpts: Partial<SocketOptions> = {
 };
 
 export class SocketTransport implements GqlTransport {
-  private ws: WebSocket;
+  private ws!: WebSocket;
   private counter: number = 0;
   private readonly max: number;
   private isOpen: boolean = false;
@@ -54,7 +54,9 @@ export class SocketTransport implements GqlTransport {
   private lastid: number = 0;
 
   constructor(opts: SocketOptions) {
-    this.opts = Object.assign(defaultOpts, opts);
+    this.opts = Object.assign(defaultOpts, opts, typeof window === 'undefined' ? {
+      watchOnline: false
+    } : {});
     this.max = opts.maxAttempts || Infinity;
     if (opts.checkOnline) {
       this.onlineChange = this.onlineChange.bind(this);
@@ -136,8 +138,8 @@ export class SocketTransport implements GqlTransport {
       e.code === 1e3 || e.code === 1005 || this.reconnect(e);
     };
 
-    this.ws.onerror = (e: CloseEvent) => {
-      if (e && ((e.code as unknown) as string) === 'ECONNREFUSED') {
+    this.ws.onerror = (e: Event) => {
+      if (e && (e as any).code === 'ECONNREFUSED') {
         this.reconnect(e);
       } else {
         this.flushError(e);
@@ -145,7 +147,7 @@ export class SocketTransport implements GqlTransport {
     };
   }
 
-  private flushError(e?: CloseEvent) {
+  private flushError(e?: Event) {
     Object.values(this.subscriptions).forEach(
       ({ handler, message: { id } }) => {
         handler.error(e);
@@ -154,7 +156,7 @@ export class SocketTransport implements GqlTransport {
     );
   }
 
-  private reconnect(e?: CloseEvent) {
+  private reconnect(e?: Event) {
     if (this.counter < this.max && this.online) {
       this.counter++;
       this.isReconnecting = true;
@@ -193,32 +195,36 @@ export class SocketTransport implements GqlTransport {
     });
   }
 
-  async close(): Promise<void> {
-    removeEventListener('online', this.onlineChange);
-    removeEventListener('offline', this.onlineChange);
-
-    if (!this.isOpen) {
-      this.isReconnecting = false;
-      return;
-    }
-
-    Object.values(this.subscriptions).forEach(
-      ({ handler, message: { id } }) => {
-        const message = {
-          id,
-          type: MsgTypes.GQL_STOP,
-        };
-
-        this.json(message);
-
-        handler.complete();
+  close(): Promise<void> {
+    return Promise.resolve().then(() => {
+      if (this.opts.checkOnline) {
+        removeEventListener('online', this.onlineChange);
+        removeEventListener('offline', this.onlineChange);
       }
-    );
 
-    this.json({
-      type: MsgTypes.GQL_CONNECTION_TERMINATE,
+      if (!this.isOpen) {
+        this.isReconnecting = false;
+        return;
+      }
+
+      Object.values(this.subscriptions).forEach(
+        ({ handler, message: { id } }) => {
+          const message = {
+            id,
+            type: MsgTypes.GQL_STOP,
+          };
+
+          this.json(message);
+
+          handler.complete();
+        }
+      );
+
+      this.json({
+        type: MsgTypes.GQL_CONNECTION_TERMINATE,
+      });
+
+      this.ws.close(1000, 'closed');
     });
-
-    this.ws.close(1000, 'closed');
   }
 }

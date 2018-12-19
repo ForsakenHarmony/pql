@@ -1,25 +1,25 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "module": "esnext",
     "moduleResolution": "node",
+
+    "module": "esnext",
     "target": "es6",
     "sourceMap": true,
+    "outDir": "dist/es",
+
     "jsx": "react",
     "jsxFactory": "h",
-    "noImplicitAny": true,
+
+    "lib": ["es6", "dom", "esnext"],
+
     "experimentalDecorators": true,
-    "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "lib": ["es6", "dom", "esnext"],
-    "outDir": "dist/es",
+    "strict": true,
+
     "baseUrl": ".",
-    "importHelpers": true,
     "paths": { "*": ["typings/*"] }
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "typings/**/*.d.ts"]
+  "include": ["src/**/*.ts", "typings/**/*.d.ts"]
 }
