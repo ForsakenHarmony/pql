@@ -1,12 +1,12 @@
 {
-  "name": "@pql/client",
+  "name": "@pql/cache",
   "version": "0.2.0-alpha.0",
   "description": "A lightweight graphql client",
   "source": "src/index.ts",
   "typings": "dist/es/index.d.ts",
   "module": "dist/es/index.js",
-  "main": "dist/pql-client.js",
-  "umd:main": "dist/pql-client.umd.js",
+  "main": "dist/pql-cache.js",
+  "umd:main": "dist/pql-cache.umd.js",
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
@@ -15,12 +15,8 @@
     "@types/graphql": "^14.0.3"
   },
   "devDependencies": {
-    "@pql/fetch": "^0.2.0-alpha.0",
-    "@types/node-fetch": "^2.1.4",
-    "node-fetch": "^2.3.0"
   },
   "scripts": {
-    "watch": "tsc -w",
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
     "build:main": "microbundle src/index.ts -f umd,cjs",

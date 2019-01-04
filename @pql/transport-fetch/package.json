@@ -3,7 +3,7 @@
   "version": "0.2.0-alpha.0",
   "description": "Fetch transport for pql",
   "source": "src/index.ts",
-  "typings": "dist/index.d.ts",
+  "typings": "dist/es/index.d.ts",
   "module": "dist/es/index.js",
   "main": "dist/pql-fetch.js",
   "umd:main": "dist/pql-fetch.umd.js",
@@ -15,6 +15,7 @@
     "@pql/observable": "^0.2.0-alpha.0"
   },
   "scripts": {
+    "watch": "tsc -w",
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
     "build:main": "microbundle src/index.ts -f umd,cjs"

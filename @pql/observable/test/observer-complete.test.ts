@@ -89,7 +89,7 @@ test('does not forward when the subscription is cancelled', t => {
 
 test('promise resolves when the subscription is cancelled', async t => {
   let list: number[] = [];
-  await Observable.of(1,2).forEach((i, cancel) => {
+  await Observable.of(1, 2).forEach((i, cancel) => {
     list.push(i);
     cancel();
   });

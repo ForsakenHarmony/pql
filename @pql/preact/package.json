@@ -1,23 +1,22 @@
 {
-  "name": "@pql/client",
+  "name": "@pql/preact",
   "version": "0.2.0-alpha.0",
-  "description": "A lightweight graphql client",
+  "description": "Preact integration for pql",
   "source": "src/index.ts",
   "typings": "dist/es/index.d.ts",
   "module": "dist/es/index.js",
-  "main": "dist/pql-client.js",
-  "umd:main": "dist/pql-client.umd.js",
+  "main": "dist/pql-preact.js",
+  "umd:main": "dist/pql-preact.umd.js",
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
-  "dependencies": {
-    "@pql/observable": "^0.2.0-alpha.0",
-    "@types/graphql": "^14.0.3"
+  "peerDependencies":  {
+    "@pql/client": "^0.2.0-alpha.0",
+    "preact": ">=8.4.2"
   },
   "devDependencies": {
-    "@pql/fetch": "^0.2.0-alpha.0",
-    "@types/node-fetch": "^2.1.4",
-    "node-fetch": "^2.3.0"
+    "@pql/client": "^0.2.0-alpha.0",
+    "preact": "^8.4.2"
   },
   "scripts": {
     "watch": "tsc -w",

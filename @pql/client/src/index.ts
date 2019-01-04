@@ -1,29 +1,26 @@
 import {
+  Ctx,
+  CtxFactory,
   GqlTransport,
   MiddlewareFn,
-  MutationOptions,
-  Operation,
-  OperationFactory,
   OperationResult,
   OperationVariables,
-  QueryOptions,
-  SubscriptionOptions,
+  OperationOptions,
 } from './types';
 import { Observable } from '@pql/observable';
+import { GraphQLError } from 'graphql';
 
 export * from './types';
 
 function compose<Vars extends OperationVariables, Res>(
-  ctx: Operation<Vars>,
+  ctx: Ctx<Vars>,
   middleware: Array<MiddlewareFn<Vars, Res>>,
-  exec: (ctx: Operation<Vars>) => Observable<OperationResult<Res>>
+  exec: (ctx: Ctx<Vars>) => Observable<OperationResult<Res>>
 ): Observable<OperationResult<Res>> {
   let index = 0;
   let lastCtx = ctx;
 
-  function next(
-    ctx: Operation<Vars> = lastCtx
-  ): Observable<OperationResult<Res>> {
+  function next(ctx: Ctx<Vars> = lastCtx): Observable<OperationResult<Res>> {
     lastCtx = ctx;
     if (index >= middleware.length) {
       return exec(ctx);
@@ -40,72 +37,103 @@ export class Client {
     private middleware: Array<MiddlewareFn<any, any>> = []
   ) {}
 
-  query<T, Vars = {}>({
+  query = this.run;
+  mutate = this.run;
+  private run<T, Vars = {}>({
     query,
     variables,
-  }: QueryOptions<Vars>): Promise<OperationResult<T>> {
-    const op = query(variables);
-    return this.run<T, Vars>(op);
-  }
+    extra,
+  }: OperationOptions<Vars>): Promise<OperationResult<T>> {
+    return new Promise((res, rej) => {
+      const operation = query(extra, variables);
 
-  mutate<T, Vars = {}>({
-    mutation,
-    variables,
-  }: MutationOptions<Vars>): Promise<OperationResult<T>> {
-    const op = mutation(variables);
-    return this.run<T, Vars>(op);
-  }
+      if (operation.operationType === 'subscription') {
+        rej(networkError(new PqlError("You can't query a subscription")));
+      }
 
-  private run<T, Vars>(
-    operation: Operation<Vars>
-  ): Promise<OperationResult<T>> {
-    let res: OperationResult<T> | undefined;
-    return compose(
-      operation,
-      this.middleware,
-      this.transport.query.bind(this.transport)
-    )
-      .forEach((val: OperationResult<T>, cancel: () => void) => {
-        res = val;
-        cancel();
-      })
-      .then(() => {
-        if (!res) throw new Error("Transport didn't return any value");
-        return res;
+      compose(
+        operation,
+        this.middleware,
+        this.transport.execute.bind<
+          GqlTransport,
+          [Ctx<Vars>],
+          Observable<OperationResult<T>>
+        >(this.transport)
+      ).subscribe({
+        next: res,
+        error: rej,
+        complete: rej.bind(
+          null,
+          networkError(new Error("Transport didn't return any value"))
+        ),
       });
+    });
   }
 
   subscribe<T, Vars>({
-    subscription,
+    query,
     variables,
-  }: SubscriptionOptions<T, Vars>): Observable<OperationResult<T>> {
-    const op = subscription(variables);
+    extra,
+  }: OperationOptions<Vars>): Observable<OperationResult<T>> {
+    const operation = query(extra, variables);
 
     return compose<Vars, T>(
-      op,
+      operation,
       this.middleware,
-      this.transport.subscribe.bind(this.transport) as any
+      this.transport.execute.bind<
+        GqlTransport,
+        [Ctx<Vars>],
+        Observable<OperationResult<T>>
+      >(this.transport)
     );
   }
 }
 
-const getOpname = /(query|mutation|subsciption) ?([\w\d-_]+)? ?\(.*?\)? {/;
+export class PqlError extends Error {
+  constructor(
+    errorMessage?: string,
+    public graphQLErrors: ReadonlyArray<GraphQLError> = [],
+    public networkError?: Error
+  ) {
+    super(
+      errorMessage ||
+        (graphQLErrors
+          .map(e => `GraphQL error: ${e.message || 'Error message not found.'}`)
+          .join('\n') + networkError
+          ? `Network error: ${networkError!.message}`
+          : ''
+        ).trim()
+    );
+  }
+}
+
+export function graphqlError(graphQLErrors: ReadonlyArray<GraphQLError>) {
+  return new PqlError(void 0, graphQLErrors);
+}
+
+export function networkError(networkError: Error) {
+  return new PqlError(void 0, void 0, networkError);
+}
+
+const getOpname = /^(?:(query|mutation|subsciption)(?:\s+([_A-Za-z][_0-9A-Za-z]*))?[^{]*?\s*)?{/;
 
 export function gql<Vars extends OperationVariables>(
   str: string | TemplateStringsArray
-): OperationFactory<Vars> {
+): CtxFactory<Vars> {
   const query = Array.isArray(str) ? str.join('') : <string>str;
-  const name = getOpname.exec(query);
-
-  return function(variables?: Vars): Operation<Vars> {
-    const data: Operation<Vars> = { query };
-
-    if (variables) data.variables = variables;
-    if (name && name.length) {
-      const operationName = name[2];
-      if (operationName) data.operationName = name[2];
-    }
-
-    return data;
+  const res = getOpname.exec(query);
+  if (!res) throw new PqlError('Could not parse the query');
+  return (extra: object = {}, variables?: Vars) => {
+    return Object.assign(extra, {
+      operationType: (res[1] as any) || 'query',
+      operation: {
+        query,
+        operationName: res[2],
+        variables,
+      },
+    });
   };
 }
+
+//util
+export function noop() {}
