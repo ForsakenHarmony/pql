@@ -19,6 +19,9 @@
     "@types/node-fetch": "^2.1.4",
     "node-fetch": "^2.3.0"
   },
+  "peerDependencies": {
+    "graphql": "^14.0.2"
+  },
   "scripts": {
     "watch": "tsc -w",
     "build": "npm-run-all --silent -p build:*",

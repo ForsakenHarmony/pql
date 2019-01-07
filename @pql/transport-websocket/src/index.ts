@@ -1,12 +1,13 @@
 import {
   Ctx,
-  GqlTransport,
+  GqlTransport, graphqlError,
   networkError,
-  noop,
   OperationResult,
   OperationVariables,
 } from '@pql/client';
 import { Observable, SubscriptionObserver } from '@pql/observable';
+
+export function noop() {}
 
 const MsgTypes = {
   GQL_CONNECTION_INIT: 'connection_init', // Client -> Server
@@ -109,7 +110,7 @@ export class SocketTransport implements GqlTransport {
         break;
       }
       case MsgTypes.GQL_DATA: {
-        sub && sub.observer.next(data.payload.data);
+        sub && sub.observer.next(data.payload);
         break;
       }
       case MsgTypes.GQL_COMPLETE: {
@@ -118,7 +119,7 @@ export class SocketTransport implements GqlTransport {
         break;
       }
       case MsgTypes.GQL_ERROR: {
-        sub && sub.observer.error(data.payload.errors);
+        sub && sub.observer.error(graphqlError(data.payload));
         break;
       }
     }
@@ -136,10 +137,7 @@ export class SocketTransport implements GqlTransport {
       const message = msg(MsgTypes.GQL_CONNECTION_INIT, this.opts.headers);
 
       this.json(message);
-      if (this.isReconnecting) {
-        Object.values(this.subscriptions).forEach(s => this.json(s.message));
-      }
-      this.isReconnecting = false;
+      Object.values(this.subscriptions).forEach(s => this.json(s.message));
     };
 
     this.ws.onclose = e => {
@@ -180,12 +178,15 @@ export class SocketTransport implements GqlTransport {
   execute<T, Vars = OperationVariables>(
     ctx: Ctx<Vars>
   ): Observable<OperationResult<T>> {
-    return new Observable(observer => {
+    return new Observable<OperationResult<T>>(observer => {
       const id = String(this.lastid++);
 
       const message = msg(MsgTypes.GQL_START, ctx.operation, id) as any;
       this.subscriptions[id] = { observer, message };
-      if (this.online) this.json(message);
+      if (this.online && this.isOpen) this.json(message);
+      return () => {
+        this.json(msg(MsgTypes.GQL_STOP, null, id));
+      };
     });
   }
 

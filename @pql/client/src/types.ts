@@ -36,7 +36,7 @@ export interface OperationError {
 
 export interface OperationResult<T> {
   data: T | null;
-  error: OperationError;
+  error?: OperationError;
   // extra
   [key: string]: any;
 }

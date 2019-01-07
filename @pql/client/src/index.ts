@@ -120,10 +120,10 @@ const getOpname = /^(?:(query|mutation|subsciption)(?:\s+([_A-Za-z][_0-9A-Za-z]*
 export function gql<Vars extends OperationVariables>(
   str: string | TemplateStringsArray
 ): CtxFactory<Vars> {
-  const query = Array.isArray(str) ? str.join('') : <string>str;
+  const query = (Array.isArray(str) ? str.join('') : <string>str).trim();
   const res = getOpname.exec(query);
   if (!res) throw new PqlError('Could not parse the query');
-  return (extra: object = {}, variables?: Vars) => {
+  return (extra: object = {}, variables: Vars = {} as Vars) => {
     return Object.assign(extra, {
       operationType: (res[1] as any) || 'query',
       operation: {
@@ -134,6 +134,3 @@ export function gql<Vars extends OperationVariables>(
     });
   };
 }
-
-//util
-export function noop() {}

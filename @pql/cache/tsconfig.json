@@ -2,6 +2,7 @@
   "compilerOptions": {
     "moduleResolution": "node",
 
+    "newLine": "lf",
     "module": "esnext",
     "target": "es6",
     "sourceMap": true,
@@ -22,5 +23,6 @@
     "baseUrl": ".",
     "paths": { "*": ["typings/*"] }
   },
-  "include": ["src/**/*.ts", "typings/**/*.d.ts"]
+  "include": ["src/**/*.ts", "typings/**/*.d.ts"],
+  "files": ["src/index.ts"]
 }

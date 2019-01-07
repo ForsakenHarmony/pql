@@ -30,7 +30,7 @@ export class FetchTransport implements GqlTransport {
   execute<T, Vars = OperationVariables>(
     ctx: Ctx<Vars>
   ): Observable<OperationResult<T>> {
-    return new Observable(observer => {
+    return new Observable<OperationResult<T>>(observer => {
       if (ctx.operationType === 'subscription')
         return observer.error(
           networkError(
