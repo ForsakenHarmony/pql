@@ -1,5 +1,10 @@
 import { Client, CtxFactory } from '@pql/client';
-import { Component, ComponentChild, ComponentConstructor, RenderableProps } from 'preact';
+import {
+  Component,
+  ComponentChild,
+  ComponentConstructor,
+  RenderableProps,
+} from 'preact';
 import { assign, EMPTY_OBJECT } from './util';
 import { runQuery } from './common';
 import { IOperation } from './index';
@@ -33,7 +38,9 @@ interface QueryProps<T, Vars> {
   query: IOperation<Vars>;
 }
 
-export const Query: ComponentConstructor<QueryProps<any, any>> = function Query<
+export const Query: ComponentConstructor<
+  QueryProps<any, any>
+> = (function Query<
   T,
   Vars = {},
   Props extends QueryProps<T, Vars> = QueryProps<T, Vars>
@@ -83,7 +90,7 @@ export const Query: ComponentConstructor<QueryProps<any, any>> = function Query<
   }
 
   //@ts-ignore
-  this.render = props => (props.children[0](buildResult())) || null;
+  this.render = props => props.children[0](buildResult()) || null;
 
-  return this
-} as unknown as ComponentConstructor<any>;
+  return this;
+} as unknown) as ComponentConstructor<any>;

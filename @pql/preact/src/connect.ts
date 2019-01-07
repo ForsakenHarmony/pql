@@ -18,7 +18,7 @@ export interface ConnectOpts<QVars> {
 }
 
 export interface ConnectMutate<T, Vars = {}> {
-  (args: MutationArgs<T, Vars>): Promise<{ data: T | null, error?: any }>
+  (args: MutationArgs<T, Vars>): Promise<{ data: T | null; error?: any }>;
 }
 
 export type ConnnectedProps<T, Vars, O extends ConnectOpts<Vars>> = {
@@ -45,7 +45,10 @@ export function connect<
   QVars = {},
   O extends ConnectOpts<QVars> = ConnectOpts<QVars>,
   P extends ConnnectedProps<T, QVars, O> = ConnnectedProps<T, QVars, O>
->(Child: ComponentFactory<P>, opts: O): ComponentFactory<ConnectProps & Without<P, ConnnectedProps<T, QVars, O>>> {
+>(
+  Child: ComponentFactory<P>,
+  opts: O
+): ComponentFactory<ConnectProps & Without<P, ConnnectedProps<T, QVars, O>>> {
   function PqlConnect(
     this: Component<any, any>,
     _props: ConnectProps & P,
@@ -62,28 +65,27 @@ export function connect<
 
     const fetch = () => {
       state.query &&
-      runQuery<T, QVars>(client, {
-        query: state.query,
-        variables: state.variables,
-        data: state.data,
-      }).then(res => {
-        state.loading = false;
-        state.loaded = true;
-        assign(state, res);
-        rerender();
-      });
+        runQuery<T, QVars>(client, {
+          query: state.query,
+          variables: state.variables,
+          data: state.data,
+        }).then(res => {
+          state.loading = false;
+          state.loaded = true;
+          assign(state, res);
+          rerender();
+        });
     };
 
     this.componentDidMount = fetch;
 
-    const mutate = <T, Vars>(op: IOperation<Vars>, {
-      mutation: oOp,
-      variables,
-      update,
-    }: MutationArgs<T, Vars> = {}) => {
+    const mutate = <T, Vars>(
+      op: IOperation<Vars>,
+      { mutation: oOp, variables, update }: MutationArgs<T, Vars> = {}
+    ) => {
       state.loading = true;
       rerender();
-      const mutation =  oOp || op;
+      const mutation = oOp || op;
 
       return runMutation<T, Vars>(client, {
         query: mutation.query,
@@ -103,11 +105,14 @@ export function connect<
       const mutations: {
         [key: string]: IOperation<any>;
       } = opts.mutation || {};
-      return assign(state, Object.keys(mutations).reduce((acc, val) => {
-        // @ts-ignore
-        acc[val] = mutate.bind(null, mutations[val]);
-        return acc;
-      }, {})) as ConnnectedProps<T, QVars, O>;
+      return assign(
+        state,
+        Object.keys(mutations).reduce((acc, val) => {
+          // @ts-ignore
+          acc[val] = mutate.bind(null, mutations[val]);
+          return acc;
+        }, {})
+      ) as ConnnectedProps<T, QVars, O>;
     }
 
     this.render = props => h(Child, assign(props, buildResult()));

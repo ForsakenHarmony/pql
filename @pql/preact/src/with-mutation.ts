@@ -14,7 +14,7 @@ interface MutationState<T, Vars> {
 
 export interface MutationArgs<T, Vars> {
   mutation?: IOperation<Vars>;
-  variables?: Vars,
+  variables?: Vars;
   optimisticResponse?: T;
   update?: (data: T) => T;
 }
@@ -69,8 +69,9 @@ export function withMutation<T, P extends MutatedProps<T, Vars>, Vars = {}>(
       optimisticResponse,
     }: MutationArgs<T, Vars> = {}) {
       state.loading = true;
-      state.mutation = mutation && mutation.query || state.mutation;
-      state.variables = variables || mutation && mutation.variables || state.variables;
+      state.mutation = (mutation && mutation.query) || state.mutation;
+      state.variables =
+        variables || (mutation && mutation.variables) || state.variables;
       state.data = optimisticResponse || state.data;
       rerender();
 

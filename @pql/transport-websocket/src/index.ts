@@ -1,6 +1,7 @@
 import {
   Ctx,
-  GqlTransport, graphqlError,
+  GqlTransport,
+  graphqlError,
   networkError,
   OperationResult,
   OperationVariables,
