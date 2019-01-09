@@ -75,10 +75,16 @@ export function withSubscription<
 
     const fetch = () => {
       stop();
-      runQuery<T, QVars, OT>(client, assign({
-        data: state.data,
-        updateQuery: opts.processUpdate,
-      }, overrideOp(opts.query, this.props.query)))
+      runQuery<T, QVars, OT>(
+        client,
+        assign(
+          {
+            data: state.data,
+            updateQuery: opts.processUpdate,
+          },
+          overrideOp(opts.query, this.props.query)
+        )
+      )
         .then(res => {
           assign(state, res);
           state.loaded = true;

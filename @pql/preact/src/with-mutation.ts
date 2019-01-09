@@ -56,9 +56,13 @@ export function withMutation<T, P extends MutatedProps<T, Vars>, Vars = {}>(
       data: null,
       query: overrideOp(overrideOp(opts.mutation, props.mutation), {
         variables: props.variables,
-      })
+      }),
     };
-    const rerender = () => Component.prototype.setState.call<Component<any, any>, [{}], void>(this, EMPTY_OBJECT);
+    const rerender = () =>
+      Component.prototype.setState.call<Component<any, any>, [{}], void>(
+        this,
+        EMPTY_OBJECT
+      );
 
     function mutate({
       mutation,

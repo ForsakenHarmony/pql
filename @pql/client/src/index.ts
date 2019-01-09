@@ -46,7 +46,7 @@ export class Client {
     extra,
   }: OperationOptions<Vars>): Promise<OperationResult<T>> {
     return new Promise((res, rej) => {
-      const operation = query(extra, variables);
+      const operation = query(this, extra, variables);
 
       if (operation.operationType === 'subscription') {
         rej(networkError(new PqlError("You can't query a subscription")));
@@ -55,7 +55,7 @@ export class Client {
       this.subscribe<T, Vars>({
         query,
         variables,
-        extra
+        extra,
       }).subscribe({
         next: res,
         error: rej,
@@ -72,7 +72,7 @@ export class Client {
     variables,
     extra,
   }: OperationOptions<Vars>): Observable<OperationResult<T>> {
-    const operation = query(extra, variables);
+    const operation = query(this, extra, variables);
 
     return compose<Vars, T>(
       operation,
@@ -123,9 +123,14 @@ export function gql<Vars extends OperationVariables>(
   const query = (Array.isArray(str) ? str.join('') : <string>str).trim();
   const res = getOpname.exec(query);
   if (!res) throw new PqlError('Could not parse the query');
-  return function (extra: object = {}, variables: Vars = {} as Vars) {
+  return function(
+    client: Client,
+    extra: object = {},
+    variables: Vars = {} as Vars
+  ) {
     const hash = Client.hash(query, variables);
     return Object.assign(extra, {
+      client,
       hash,
       operationType: (res[1] as any) || 'query',
       operation: {

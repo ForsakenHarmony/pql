@@ -22,9 +22,22 @@
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
     "build:main": "microbundle src/index.ts",
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS=\"{\"\"module\"\": \"\"commonjs\"\"}\" ava",
     "clean": "rimraf dist .rts2*"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "files": [
+      "test/**/*.test.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
   }
 }

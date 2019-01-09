@@ -1,5 +1,4 @@
 import { MiddlewareFn } from '@pql/client';
-import { hashStr } from './hash';
 import { Observable } from '@pql/observable';
 
 export interface ICacheStorage {
@@ -14,27 +13,26 @@ export interface ICacheStorage {
 
 export function cache(storage: ICacheStorage): MiddlewareFn<any, any> {
   return (ctx, next) => {
-    const { query, variables } = ctx;
-
-    const hash = hashStr(JSON.stringify({ query, variables }));
+    const { hash, skipCache, operationType } = ctx;
+    const isSub = operationType === 'subscription';
 
     return new Observable(observer => {
-      storage
-        .read(hash)
-        .catch(() => void 0)
-        .then(entry => {
-          if (entry) {
-            observer.next(entry);
-            observer.complete();
-          } else {
-            next(ctx)
-              .map(res => {
-                storage.write(hash, res).catch(() => {});
-                return res;
-              })
-              .subscribe(observer);
-          }
-        });
+      (skipCache || isSub
+        ? Promise.resolve(undefined)
+        : storage.read(hash).catch(() => void 0)
+      ).then(entry => {
+        if (entry) {
+          observer.next(entry);
+          observer.complete();
+        } else {
+          next(ctx)
+            .map(res => {
+              !isSub && storage.write(hash, res).catch(() => {});
+              return res;
+            })
+            .subscribe(observer);
+        }
+      });
     });
   };
 }

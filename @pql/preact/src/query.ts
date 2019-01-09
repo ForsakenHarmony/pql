@@ -18,7 +18,7 @@ interface QueryState<T> {
 
 interface FetchMoreOpts<T, Vars> {
   query?: IOperation<Vars>;
-  variables?: Vars,
+  variables?: Vars;
   updateQuery?: (prev: T | null, next: T) => T;
 }
 
@@ -52,7 +52,7 @@ export const Query: ComponentConstructor<
     loaded: !!props.skip,
     loading: !props.skip,
     error: null,
-    data: null
+    data: null,
   };
 
   const rerender = () => this.setState(EMPTY_OBJECT);
@@ -60,14 +60,24 @@ export const Query: ComponentConstructor<
   this.componentDidUpdate = (prev: Readonly<Props>) =>
     prev.query !== this.props.query && fetch();
 
-  const fetch = ({ query, variables, updateQuery }: FetchMoreOpts<T, Vars> = {}) => {
+  const fetch = ({
+    query,
+    variables,
+    updateQuery,
+  }: FetchMoreOpts<T, Vars> = {}) => {
     state.loading = true;
     rerender();
 
-    return runQuery<T, Vars>(client, assign({
-      data: state.data,
-      updateQuery,
-    }, overrideOp(overrideOp(this.props.query, query), { variables }))).then(res => {
+    return runQuery<T, Vars>(
+      client,
+      assign(
+        {
+          data: state.data,
+          updateQuery,
+        },
+        overrideOp(overrideOp(this.props.query, query), { variables })
+      )
+    ).then(res => {
       state.loading = false;
       state.loaded = true;
       assign(state, res);
