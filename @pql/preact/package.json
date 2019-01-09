@@ -1,6 +1,6 @@
 {
   "name": "@pql/preact",
-  "version": "0.2.0-alpha.1",
+  "version": "0.2.0-alpha.2",
   "description": "Preact integration for pql",
   "source": "src/index.ts",
   "typings": "dist/es/index.d.ts",
@@ -11,12 +11,12 @@
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
-  "peerDependencies":  {
+  "peerDependencies": {
     "@pql/client": "^0.2.0-alpha.1",
     "preact": ">=8.4.2"
   },
   "devDependencies": {
-    "@pql/client": "^0.2.0-alpha.1",
+    "@pql/client": "^0.2.0-alpha.2",
     "preact": "^8.4.2"
   },
   "scripts": {

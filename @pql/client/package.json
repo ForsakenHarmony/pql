@@ -1,6 +1,6 @@
 {
   "name": "@pql/client",
-  "version": "0.2.0-alpha.1",
+  "version": "0.2.0-alpha.2",
   "description": "A lightweight graphql client",
   "source": "src/index.ts",
   "typings": "dist/es/index.d.ts",
@@ -12,11 +12,11 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "dependencies": {
-    "@pql/observable": "^0.2.0-alpha.1",
+    "@pql/observable": "^0.2.0-alpha.2",
     "@types/graphql": "^14.0.3"
   },
   "devDependencies": {
-    "@pql/fetch": "^0.2.0-alpha.0",
+    "@pql/fetch": "^0.2.0-alpha.2",
     "@types/node-fetch": "^2.1.4",
     "node-fetch": "^2.3.0"
   },

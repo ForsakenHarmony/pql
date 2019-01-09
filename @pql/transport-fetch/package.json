@@ -1,6 +1,6 @@
 {
   "name": "@pql/fetch",
-  "version": "0.2.0-alpha.1",
+  "version": "0.2.0-alpha.2",
   "description": "Fetch transport for pql",
   "source": "src/index.ts",
   "typings": "dist/es/index.d.ts",
@@ -12,8 +12,8 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "dependencies": {
-    "@pql/client": "^0.2.0-alpha.1",
-    "@pql/observable": "^0.2.0-alpha.1"
+    "@pql/client": "^0.2.0-alpha.2",
+    "@pql/observable": "^0.2.0-alpha.2"
   },
   "scripts": {
     "watch": "tsc -w",
