@@ -11,7 +11,7 @@
     "test:all": "lerna run test --stream --parallel",
     "clean": "lerna run clean --parallel",
     "publish": "lerna publish",
-    "prettier": "prettier **/*.{js,ts,json,css,md,yml} --write",
+    "prettier": "prettier **/*.{js,ts,tsx,json,css,md,yml} --write",
     "prepare": "npm run -s build"
   },
   "devDependencies": {
@@ -38,7 +38,7 @@
   },
   "lint-staged": {
     "linters": {
-      "*.{js,json,css,md,yml}": [
+      "*.{js,ts,tsx,json,css,md,yml}": [
         "prettier --write",
         "git add"
       ]
