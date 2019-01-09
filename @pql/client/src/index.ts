@@ -9,6 +9,7 @@ import {
 } from './types';
 import { Observable } from '@pql/observable';
 import { GraphQLError } from 'graphql';
+import { hashStr } from './hash';
 
 export * from './types';
 
@@ -51,15 +52,11 @@ export class Client {
         rej(networkError(new PqlError("You can't query a subscription")));
       }
 
-      compose(
-        operation,
-        this.middleware,
-        this.transport.execute.bind<
-          GqlTransport,
-          [Ctx<Vars>],
-          Observable<OperationResult<T>>
-        >(this.transport)
-      ).subscribe({
+      this.subscribe<T, Vars>({
+        query,
+        variables,
+        extra
+      }).subscribe({
         next: res,
         error: rej,
         complete: rej.bind(
@@ -86,6 +83,10 @@ export class Client {
         Observable<OperationResult<T>>
       >(this.transport)
     );
+  }
+
+  static hash(query: string, variables: any): string {
+    return hashStr(JSON.stringify({ query, variables })).toString(16);
   }
 }
 
@@ -115,16 +116,17 @@ export function networkError(networkError: Error) {
   return new PqlError(void 0, void 0, networkError);
 }
 
-const getOpname = /^(?:(query|mutation|subsciption)(?:\s+([_A-Za-z][_0-9A-Za-z]*))?[^{]*?\s*)?{/;
-
+const getOpname = /^(?:(query|mutation|subscription)(?:\s+([_A-Za-z][_0-9A-Za-z]*))?[^{]*?\s*)?{/;
 export function gql<Vars extends OperationVariables>(
   str: string | TemplateStringsArray
 ): CtxFactory<Vars> {
   const query = (Array.isArray(str) ? str.join('') : <string>str).trim();
   const res = getOpname.exec(query);
   if (!res) throw new PqlError('Could not parse the query');
-  return (extra: object = {}, variables: Vars = {} as Vars) => {
+  return function (extra: object = {}, variables: Vars = {} as Vars) {
+    const hash = Client.hash(query, variables);
     return Object.assign(extra, {
+      hash,
       operationType: (res[1] as any) || 'query',
       operation: {
         query,

@@ -1,17 +1,22 @@
 {
   "name": "@pql/cache",
-  "version": "0.2.0-alpha.0",
+  "private": true,
+  "version": "0.2.0-alpha.1",
   "description": "A lightweight graphql client",
   "source": "src/index.ts",
   "typings": "dist/es/index.d.ts",
-  "module": "dist/es/index.js",
-  "main": "dist/pql-cache.js",
-  "umd:main": "dist/pql-cache.umd.js",
+  "esnext": "dist/es/index.js",
+  "module": "dist/index.es.js",
+  "main": "dist/index.cjs.js",
+  "umd:main": "dist/index.umd.js",
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "dependencies": {
-    "@pql/observable": "^0.2.0-alpha.0",
+    "@pql/observable": "^0.2.0-alpha.1",
+    "@pql/client": "^0.2.0-alpha.1"
+  },
+  "peerDependencies": {
     "@types/graphql": "^14.0.3"
   },
   "devDependencies": {
@@ -19,8 +24,9 @@
   "scripts": {
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
-    "build:main": "microbundle src/index.ts -f umd,cjs",
-    "test": "cross-env TS_NODE_COMPILER_OPTIONS=\"{\"\"module\"\": \"\"commonjs\"\"}\" ava"
+    "build:main": "microbundle src/index.ts",
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS=\"{\"\"module\"\": \"\"commonjs\"\"}\" ava",
+    "clean": "rimraf dist .rts2*"
   },
   "publishConfig": {
     "access": "public"

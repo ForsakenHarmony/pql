@@ -1,18 +1,19 @@
 {
   "name": "@pql/websocket",
-  "version": "0.2.0-alpha.0",
+  "version": "0.2.0-alpha.1",
   "description": "Websocket transport for pql",
   "source": "src/index.ts",
   "typings": "dist/es/index.d.ts",
-  "module": "dist/es/index.js",
-  "main": "dist/pql-websocket.js",
-  "umd:main": "dist/pql-websocket.umd.js",
+  "esnext": "dist/es/index.js",
+  "module": "dist/index.es.js",
+  "main": "dist/index.cjs.js",
+  "umd:main": "dist/index.umd.js",
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "dependencies": {
-    "@pql/client": "^0.2.0-alpha.0",
-    "@pql/observable": "^0.2.0-alpha.0",
+    "@pql/client": "^0.2.0-alpha.1",
+    "@pql/observable": "^0.2.0-alpha.1",
     "is-offline": "^2.1.0",
     "sockette": "^2.0.0"
   },
@@ -20,7 +21,8 @@
     "watch": "tsc -w",
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
-    "build:main": "microbundle src/index.ts -f umd,cjs"
+    "build:main": "microbundle src/index.ts",
+    "clean": "rimraf dist .rts2*"
   },
   "publishConfig": {
     "access": "public"

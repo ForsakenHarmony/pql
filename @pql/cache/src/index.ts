@@ -29,6 +29,7 @@ export function cache(storage: ICacheStorage): MiddlewareFn<any, any> {
           } else {
             next(ctx)
               .map(res => {
+                storage.write(hash, res).catch(() => {});
                 return res;
               })
               .subscribe(observer);

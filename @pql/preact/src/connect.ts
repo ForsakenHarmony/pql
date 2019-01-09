@@ -1,6 +1,6 @@
 import { Client, CtxFactory } from '@pql/client';
 import { Component, ComponentConstructor, ComponentFactory, h } from 'preact';
-import { assign, EMPTY_OBJECT } from './util';
+import { assign, EMPTY_OBJECT, Without } from './util';
 import { MutationArgs } from './with-mutation';
 import { IOperation } from './index';
 import { runMutation, runQuery } from './common';
@@ -37,8 +37,6 @@ interface ConnectState<T, Vars> {
   query?: CtxFactory<Vars>;
   variables?: Vars;
 }
-
-type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 
 export function connect<
   T,

@@ -1,7 +1,8 @@
-import { Client, CtxFactory } from '@pql/client';
+import { Client } from '@pql/client';
 import { Component, ComponentConstructor, ComponentFactory, h } from 'preact';
-import { assign, EMPTY_OBJECT, noop } from './util';
+import { assign, EMPTY_OBJECT, noop, overrideOp, Without } from './util';
 import { runQuery, runSubscription } from './common';
+import { IOperation } from './index';
 
 interface ISubscriberProps<T> {
   data: T | null;
@@ -12,14 +13,8 @@ interface ISubscriberProps<T> {
 }
 
 interface ISubscribeOptions<T, OT, QVars, SVars> {
-  query: {
-    op: CtxFactory<QVars>;
-    variables: QVars;
-  };
-  subscription: {
-    op: CtxFactory<SVars>;
-    variables: SVars;
-  };
+  query: IOperation<QVars>;
+  subscription: IOperation<SVars>;
   processUpdate: (data: OT | null, next: T) => OT;
 }
 
@@ -30,16 +25,23 @@ export interface ISubscribeState<T> {
   stopped: boolean;
 }
 
+interface ISubscribeProps<QVars, SVars> {
+  query?: IOperation<QVars>;
+  subscription?: IOperation<SVars>;
+}
+
 export function withSubscription<
   T,
-  SP extends ISubscriberProps<T>,
   QVars,
   SVars,
+  SP extends ISubscribeProps<QVars, SVars>,
   OT = T
 >(
   Child: ComponentFactory<SP>,
   opts: ISubscribeOptions<T, OT, QVars, SVars>
-): ComponentFactory<SP> {
+): ComponentFactory<
+  ISubscriberProps<T> & Without<SP, ISubscribeProps<QVars, SVars>>
+> {
   opts.processUpdate = opts.processUpdate || ((_, data) => data);
 
   function WithSubscription(
@@ -62,25 +64,21 @@ export function withSubscription<
       rerender();
     }
 
-    function subscribe() {
+    const subscribe = () => {
       if (state.stopped) return;
-      return runSubscription(
+      return runSubscription<any, SVars>(
         client,
-        {
-          query: opts.subscription.op,
-          variables: opts.subscription.variables,
-        },
+        overrideOp(opts.subscription, this.props.subscription),
         update
       );
-    }
+    };
 
-    this.componentDidMount = () => {
-      runQuery<T, QVars, OT>(client, {
-        query: opts.query.op,
-        variables: opts.query.variables,
+    const fetch = () => {
+      stop();
+      runQuery<T, QVars, OT>(client, assign({
         data: state.data,
         updateQuery: opts.processUpdate,
-      })
+      }, overrideOp(opts.query, this.props.query)))
         .then(res => {
           assign(state, res);
           state.loaded = true;
@@ -88,6 +86,12 @@ export function withSubscription<
         })
         .then(subscribe);
     };
+
+    this.componentDidMount = fetch;
+    this.componentDidUpdate = prev =>
+      (prev.query != this.props.query ||
+        prev.subscription != this.props.subscription) &&
+      fetch();
 
     this.render = props =>
       h(

@@ -13,6 +13,7 @@ export interface Operation<Vars extends OperationVariables> {
 }
 
 export interface Ctx<Vars extends OperationVariables> {
+  hash: string,
   operationType: 'query' | 'mutation' | 'subscription';
   operation: Operation<Vars>;
   // extra

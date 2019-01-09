@@ -1,25 +1,24 @@
-import { Client, CtxFactory } from '@pql/client';
+import { Client } from '@pql/client';
 import {
   Component,
   ComponentChild,
   ComponentConstructor,
   RenderableProps,
 } from 'preact';
-import { assign, EMPTY_OBJECT } from './util';
+import { assign, EMPTY_OBJECT, overrideOp } from './util';
 import { runQuery } from './common';
 import { IOperation } from './index';
 
-interface QueryState<T, Vars> {
+interface QueryState<T> {
   loaded: boolean;
   loading: boolean;
   error?: any;
   data: T | null;
-  query: CtxFactory<Vars>;
-  variables?: Vars;
 }
 
 interface FetchMoreOpts<T, Vars> {
   query?: IOperation<Vars>;
+  variables?: Vars,
   updateQuery?: (prev: T | null, next: T) => T;
 }
 
@@ -49,39 +48,33 @@ export const Query: ComponentConstructor<
   props: RenderableProps<Props>,
   { client }: { client: Client }
 ): Component<Props> {
-  const state: QueryState<T, Vars> = {
+  const state: QueryState<T> = {
     loaded: !!props.skip,
     loading: !props.skip,
     error: null,
-    data: null,
-    query: props.query.query,
-    variables: props.query.variables,
+    data: null
   };
 
   const rerender = () => this.setState(EMPTY_OBJECT);
   this.componentDidMount = () => fetch();
-  this.componentWillReceiveProps = (next: Readonly<Props>) =>
-    next.query !== this.props.query && fetch(next);
+  this.componentDidUpdate = (prev: Readonly<Props>) =>
+    prev.query !== this.props.query && fetch();
 
-  function fetch({ query, updateQuery }: FetchMoreOpts<T, Vars> = {}) {
+  const fetch = ({ query, variables, updateQuery }: FetchMoreOpts<T, Vars> = {}) => {
     state.loading = true;
-    state.query = (query && query.query) || state.query;
-    state.variables = (query && query.variables) || state.variables;
     rerender();
 
-    return runQuery<T, Vars>(client, {
-      query: state.query,
-      variables: state.variables,
+    return runQuery<T, Vars>(client, assign({
       data: state.data,
       updateQuery,
-    }).then(res => {
+    }, overrideOp(overrideOp(this.props.query, query), { variables }))).then(res => {
       state.loading = false;
       state.loaded = true;
       assign(state, res);
       rerender();
       return res;
     });
-  }
+  };
 
   function buildResult(): QueryResult<T, Vars> {
     return assign(state, {
@@ -93,4 +86,4 @@ export const Query: ComponentConstructor<
   this.render = props => props.children[0](buildResult()) || null;
 
   return this;
-} as unknown) as ComponentConstructor<any>;
+} as unknown) as ComponentConstructor<QueryProps<any, any>>;
