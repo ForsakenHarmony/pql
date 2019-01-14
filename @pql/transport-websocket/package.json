@@ -3,7 +3,7 @@
   "version": "0.2.0-alpha.2",
   "description": "Websocket transport for pql",
   "source": "src/index.ts",
-  "typings": "dist/es/index.d.ts",
+  "typings": "dist/index.d.ts",
   "esnext": "dist/es/index.js",
   "module": "dist/index.es.js",
   "main": "dist/index.cjs.js",
@@ -13,12 +13,13 @@
   "license": "MIT",
   "dependencies": {
     "@pql/client": "^0.2.0-alpha.2",
-    "@pql/observable": "^0.2.0-alpha.2",
-    "is-offline": "^2.1.0",
-    "sockette": "^2.0.0"
+    "@pql/observable": "^0.2.0-alpha.2"
   },
   "scripts": {
-    "watch": "tsc -w",
+    "watch": "run-p -cls watch:**",
+    "watch:ts": "tsc -w",
+    "watch:main": "microbundle watch src/index.ts",
+    "devbuild": "microbundle src/index.ts --no-compress --raw",
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
     "build:main": "microbundle src/index.ts",

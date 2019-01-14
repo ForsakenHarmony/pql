@@ -6,16 +6,20 @@ interface RunQueryOpts<T, Vars, OT = T> {
   variables?: Vars;
   data: OT | null;
   updateQuery?: (data: OT | null, next: T) => OT;
+  skipCache?: boolean;
 }
 
 export function runQuery<T, Vars, OT = T>(
   client: Client,
-  { query, variables, data, updateQuery }: RunQueryOpts<T, Vars, OT>
+  { query, variables, data, updateQuery, skipCache }: RunQueryOpts<T, Vars, OT>
 ): Promise<{ data: OT | null; error?: any }> {
   return client
     .query<T, Vars>({
       query: query,
       variables: variables,
+      extra: {
+        skipCache,
+      },
     })
     .then(res => {
       return {

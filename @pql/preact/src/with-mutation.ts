@@ -1,14 +1,12 @@
-import { Component, ComponentConstructor, ComponentFactory, h } from 'preact';
+import { Component, ComponentFactory, h } from 'preact';
 import { Client } from '@pql/client';
 import { assign, EMPTY_OBJECT, overrideOp } from './util';
 import { runMutation } from './common';
 import { IOperation } from './index';
 
-interface MutationState<T, Vars> {
-  loading: boolean;
+interface MutationState<T> {
   error?: any;
   data: T | null;
-  query: IOperation<Vars>;
 }
 
 export interface MutationArgs<T, Vars> {
@@ -46,23 +44,74 @@ export function withMutation<T, P extends MutatedProps<T, Vars>, Vars = {}>(
   Child: ComponentFactory<P>,
   opts: MutationOpts<Vars>
 ): ComponentFactory<MutationProps<Vars> & P> {
+  // function init(component: Component<MutationProps<Vars>>, props: MutationProps<Vars>, client: Client) {
+  //   let loading = false;
+  //   let query = overrideOp(overrideOp(opts.mutation, props.mutation), {
+  //     variables: props.variables,
+  //   });
+  //
+  //   const rerender = () => component.setState(EMPTY_OBJECT);
+  //
+  //   const state: MutationState<T, Vars> = {
+  //     data: null,
+  //     query: overrideOp(overrideOp(opts.mutation, props.mutation), {
+  //       variables: props.variables,
+  //     }),
+  //   };
+  //
+  //   function mutate({
+  //                     mutation,
+  //                     update,
+  //                     variables,
+  //                     optimisticResponse,
+  //                   }: MutationArgs<T, Vars> = {}) {
+  //     loading = true;
+  //
+  //     query = overrideOp(state.query, mutation);
+  //     query.variables = variables || state.query.variables;
+  //
+  //
+  //     state.data = optimisticResponse || state.data;
+  //     rerender();
+  //
+  //     return runMutation<T, Vars>(client, assign({ update }, state.query)).then(
+  //       res => {
+  //         state.loading = false;
+  //         assign(state, res);
+  //         rerender();
+  //         return res;
+  //       }
+  //     );
+  //   }
+  //
+  //   component.componentDidMount = component.componentDidUpdate = (prev?: MutationProps<Vars>) => {
+  //
+  //   };
+  //
+  //   return () => assign({ mutate, loading }, state);
+  // }
+  //
+  // function WithMutation(this: Component<any, any>, props: MutationProps<Vars>, { client }: { client: Client }) {
+  //   // @ts-ignore
+  //   const buildResult = this._b || (this._b = init(this, props, client));
+  //   return h(Child, assign(props || {}, buildResult()));
+  // }
+
   function WithMutation(
     this: Component<any, any>,
     props: MutationProps<Vars>,
     { client }: { client: Client }
   ) {
-    const state: MutationState<T, Vars> = {
-      loading: false,
+    let loading = false;
+    let query = overrideOp(overrideOp(opts.mutation, props.mutation), {
+      variables: props.variables,
+    });
+
+    const rerender = () => this.setState(EMPTY_OBJECT);
+
+    const state: MutationState<T> = {
       data: null,
-      query: overrideOp(overrideOp(opts.mutation, props.mutation), {
-        variables: props.variables,
-      }),
     };
-    const rerender = () =>
-      Component.prototype.setState.call<Component<any, any>, [{}], void>(
-        this,
-        EMPTY_OBJECT
-      );
 
     function mutate({
       mutation,
@@ -70,16 +119,16 @@ export function withMutation<T, P extends MutatedProps<T, Vars>, Vars = {}>(
       variables,
       optimisticResponse,
     }: MutationArgs<T, Vars> = {}) {
-      state.loading = true;
+      loading = true;
 
-      assign(state, overrideOp(state.query, mutation));
-      state.query.variables = variables || state.query.variables;
+      assign(state, overrideOp(query, mutation));
+      query.variables = variables || query.variables;
       state.data = optimisticResponse || state.data;
       rerender();
 
-      return runMutation<T, Vars>(client, assign({ update }, state.query)).then(
+      return runMutation<T, Vars>(client, assign({ update }, query)).then(
         res => {
-          state.loading = false;
+          loading = false;
           assign(state, res);
           rerender();
           return res;
@@ -88,10 +137,13 @@ export function withMutation<T, P extends MutatedProps<T, Vars>, Vars = {}>(
     }
 
     function buildResult(): MutatedProps<T, Vars> {
-      return assign(state, { mutate });
+      return assign(state, { mutate, loading });
     }
     this.render = props => h(Child, assign(props || {}, buildResult()));
   }
 
-  return (WithMutation as unknown) as ComponentConstructor<any>;
+  WithMutation.prototype.__proto__ = Component.prototype;
+  WithMutation.__proto__ = Component;
+
+  return WithMutation as any;
 }

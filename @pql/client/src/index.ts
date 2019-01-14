@@ -32,7 +32,14 @@ function compose<Vars extends OperationVariables, Res>(
   return next(ctx);
 }
 
+export interface Subsciber {
+  (hash: string): void;
+}
+
 export class Client {
+  private allHashes: string[] = [];
+  private subscribers: Subsciber[] = [];
+
   constructor(
     private transport: GqlTransport,
     private middleware: Array<MiddlewareFn<any, any>> = []
@@ -48,9 +55,10 @@ export class Client {
     return new Promise((res, rej) => {
       const operation = query(this, extra, variables);
 
-      if (operation.operationType === 'subscription') {
-        rej(networkError(new PqlError("You can't query a subscription")));
-      }
+      if (operation.operationType === 'subscription')
+        return rej(
+          networkError(new PqlError("You can't query a subscription"))
+        );
 
       this.subscribe<T, Vars>({
         query,
@@ -74,6 +82,9 @@ export class Client {
   }: OperationOptions<Vars>): Observable<OperationResult<T>> {
     const operation = query(this, extra, variables);
 
+    if (operation.operationType === 'query')
+      this.allHashes.push(operation.hash);
+
     return compose<Vars, T>(
       operation,
       this.middleware,
@@ -85,7 +96,20 @@ export class Client {
     );
   }
 
-  static hash(query: string, variables: any): string {
+  invalidate(hash: string) {
+    this.subscribers.map(fn => fn(hash));
+  }
+  invalidateAll() {
+    this.allHashes.map(hash => this.subscribers.map(fn => fn(hash)));
+  }
+  onInvalidate(cb: Subsciber) {
+    this.subscribers.push(cb);
+    return () => {
+      this.subscribers.splice(this.subscribers.indexOf(cb), 1);
+    };
+  }
+
+  static hash(query: string, variables: any = {}): string {
     return hashStr(JSON.stringify({ query, variables })).toString(16);
   }
 }
@@ -98,18 +122,23 @@ export class PqlError extends Error {
   ) {
     super(
       errorMessage ||
-        (graphQLErrors
-          .map(e => `GraphQL error: ${e.message || 'Error message not found.'}`)
-          .join('\n') + networkError
-          ? `Network error: ${networkError!.message}`
-          : ''
+        (
+          graphQLErrors
+            .map(
+              e => `GraphQL error: ${e.message || 'Error message not found.'}`
+            )
+            .join('\n') +
+          (networkError ? `Network error: ${networkError!.message}` : '')
         ).trim()
     );
   }
 }
 
 export function graphqlError(graphQLErrors: ReadonlyArray<GraphQLError>) {
-  return new PqlError(void 0, graphQLErrors);
+  return new PqlError(
+    void 0,
+    Array.isArray(graphQLErrors) ? graphQLErrors : [graphQLErrors]
+  );
 }
 
 export function networkError(networkError: Error) {
@@ -123,7 +152,7 @@ export function gql<Vars extends OperationVariables>(
   const query = (Array.isArray(str) ? str.join('') : <string>str).trim();
   const res = getOpname.exec(query);
   if (!res) throw new PqlError('Could not parse the query');
-  return function(
+  const factory = function(
     client: Client,
     extra: object = {},
     variables: Vars = {} as Vars
@@ -140,4 +169,6 @@ export function gql<Vars extends OperationVariables>(
       },
     });
   };
+  factory.query = query;
+  return factory;
 }

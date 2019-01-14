@@ -7,13 +7,13 @@ export type Obj = {
 };
 export type OperationVariables = Obj;
 
-export interface Operation<Vars extends OperationVariables> {
+export interface Operation<Vars = {}> {
   query: string;
   operationName?: string;
   variables?: Vars;
 }
 
-export interface Ctx<Vars extends OperationVariables> {
+export interface Ctx<Vars = {}> {
   hash: string;
   operationType: 'query' | 'mutation' | 'subscription';
   operation: Operation<Vars>;
@@ -22,13 +22,12 @@ export interface Ctx<Vars extends OperationVariables> {
   [key: string]: any;
 }
 
-export type CtxFactory<Vars extends OperationVariables> = (
-  client: Client,
-  extra?: Obj,
-  vars?: Vars
-) => Ctx<Vars>;
+export interface CtxFactory<Vars = {}> {
+  (client: Client, extra?: Obj, vars?: Vars): Ctx<Vars>;
+  query: string;
+}
 
-export interface OperationOptions<Vars = OperationVariables> {
+export interface OperationOptions<Vars = {}> {
   variables?: Vars;
   query: CtxFactory<Vars>;
   extra?: Obj;
@@ -38,7 +37,11 @@ export interface OperationError {
   graphql: GraphQLError[];
 }
 
-export interface OperationResult<T> {
+export interface GqlData {
+  [key: string]: any;
+}
+
+export interface OperationResult<T = GqlData> {
   data: T | null;
   error?: OperationError;
   // extra
@@ -51,7 +54,7 @@ export type MiddlewareFn<Vars, Res> = (
 ) => Observable<OperationResult<Res>>;
 
 export interface GqlTransport {
-  execute<T, Vars = OperationVariables>(
+  execute<T = GqlData, Vars = {}>(
     operation: Ctx<Vars>
   ): Observable<OperationResult<T>>;
   close(): Promise<void>;

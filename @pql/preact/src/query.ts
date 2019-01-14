@@ -5,21 +5,30 @@ import {
   ComponentConstructor,
   RenderableProps,
 } from 'preact';
-import { assign, EMPTY_OBJECT, overrideOp } from './util';
+import {
+  assign,
+  EMPTY_OBJECT,
+  hashOp,
+  noop,
+  opsEqual,
+  overrideOp,
+} from './util';
 import { runQuery } from './common';
 import { IOperation } from './index';
 
-interface QueryState<T> {
+interface QueryState<T, Vars> {
   loaded: boolean;
   loading: boolean;
   error?: any;
   data: T | null;
+  query: IOperation<Vars>;
 }
 
 interface FetchMoreOpts<T, Vars> {
   query?: IOperation<Vars>;
   variables?: Vars;
   updateQuery?: (prev: T | null, next: T) => T;
+  skipCache?: boolean;
 }
 
 interface QueryResult<T, Vars> {
@@ -48,24 +57,36 @@ export const Query: ComponentConstructor<
   props: RenderableProps<Props>,
   { client }: { client: Client }
 ): Component<Props> {
-  const state: QueryState<T> = {
+  const state: QueryState<T, Vars> = {
     loaded: !!props.skip,
     loading: !props.skip,
-    error: null,
     data: null,
+    query: props.query,
   };
+  let unsub = noop;
+  let hashes: string[] = [];
 
   const rerender = () => this.setState(EMPTY_OBJECT);
-  this.componentDidMount = () => fetch();
-  this.componentDidUpdate = (prev: Readonly<Props>) =>
-    prev.query !== this.props.query && fetch();
+  this.componentDidMount = () => {
+    fetch();
+    unsub = client.onInvalidate(hash => hashes.includes(hash) && fetch());
+  };
+  this.componentDidUpdate = () =>
+    !opsEqual(state.query, this.props.query) && fetch();
+  this.componentWillUnmount = () => unsub();
 
   const fetch = ({
     query,
     variables,
     updateQuery,
+    skipCache,
   }: FetchMoreOpts<T, Vars> = {}) => {
     state.loading = true;
+    state.query = overrideOp(overrideOp(this.props.query, query), {
+      variables,
+    });
+    const hash = hashOp(state.query);
+    if (!hashes.includes(hash)) hashes.push(hash);
     rerender();
 
     return runQuery<T, Vars>(
@@ -74,8 +95,9 @@ export const Query: ComponentConstructor<
         {
           data: state.data,
           updateQuery,
+          skipCache,
         },
-        overrideOp(overrideOp(this.props.query, query), { variables })
+        state.query
       )
     ).then(res => {
       state.loading = false;

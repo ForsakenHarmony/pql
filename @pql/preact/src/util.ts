@@ -1,10 +1,11 @@
 import { IOperation } from './index';
+import { Client } from '@pql/client';
 
 export interface Obj {
   [key: string]: any;
 }
 
-export type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
+export type Without<T, K> = Pick<T, Exclude<keyof T, keyof K>>;
 
 export const EMPTY_OBJECT = {};
 
@@ -28,4 +29,21 @@ export function overrideOp<
         variables: override.variables || source.variables,
       }
     : source;
+}
+
+export function opsEqual<
+  S extends IOperation<any>,
+  O extends Partial<IOperation<any>>
+>(source?: S, target?: O) {
+  return (
+    source === target ||
+    (source &&
+      target &&
+      source.query === target.query &&
+      source.variables === target.variables)
+  );
+}
+
+export function hashOp(op: IOperation<any>) {
+  return Client.hash(op.query.query, op.variables || {});
 }

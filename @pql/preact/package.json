@@ -3,7 +3,7 @@
   "version": "0.2.0-alpha.2",
   "description": "Preact integration for pql",
   "source": "src/index.ts",
-  "typings": "dist/es/index.d.ts",
+  "typings": "dist/index.d.ts",
   "esnext": "dist/es/index.js",
   "module": "dist/index.es.js",
   "main": "dist/index.cjs.js",
@@ -11,19 +11,23 @@
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
+  "dependencies": {
+    "@pql/client": "^0.2.0-alpha.2"
+  },
   "peerDependencies": {
-    "@pql/client": "^0.2.0-alpha.1",
     "preact": ">=8.4.2"
   },
   "devDependencies": {
-    "@pql/client": "^0.2.0-alpha.2",
     "preact": "^8.4.2"
   },
   "scripts": {
-    "watch": "tsc -w",
-    "build": "npm-run-all --silent -p build:*",
+    "watch": "run-p -cls watch:**",
+    "watch:ts": "tsc -w",
+    "watch:main": "microbundle watch src/index.ts --no-compress --raw",
+    "devbuild": "microbundle src/index.ts --no-compress --raw",
+    "build": "npm-run-all -p -l build:*",
     "build:ts": "tsc",
-    "build:main": "microbundle src/index.ts",
+    "build:main": "microbundle build src/index.ts",
     "test": "cross-env TS_NODE_COMPILER_OPTIONS=\"{\"\"module\"\": \"\"commonjs\"\"}\" ava",
     "clean": "rimraf dist .rts2*"
   },

@@ -1,6 +1,14 @@
 import { Client } from '@pql/client';
 import { Component, ComponentConstructor, ComponentFactory, h } from 'preact';
-import { assign, EMPTY_OBJECT, noop, overrideOp, Without } from './util';
+import {
+  assign,
+  EMPTY_OBJECT,
+  hashOp,
+  noop,
+  opsEqual,
+  overrideOp,
+  Without,
+} from './util';
 import { runQuery, runSubscription } from './common';
 import { IOperation } from './index';
 
@@ -46,7 +54,7 @@ export function withSubscription<
 
   function WithSubscription(
     this: Component<any, any>,
-    _props: SP,
+    props: SP,
     { client }: { client: Client }
   ) {
     let stop: Function = noop;
@@ -55,26 +63,43 @@ export function withSubscription<
       loaded: false,
       stopped: false,
     };
+    let query = overrideOp(opts.query, props.query);
+    let subscription = overrideOp(opts.query, props.subscription);
+    let unsub = noop;
+    let hashes: string[] = [];
 
     const rerender = () => this.setState(EMPTY_OBJECT);
 
-    function update({ data, error }: { data?: T | null; error?: any }) {
+    function update(
+      { data, error }: { data?: T | null; error?: any },
+      stop_: Function
+    ) {
+      stop = stop_;
       data && (state.data = opts.processUpdate(state.data, data));
       error && (state.error = error);
       rerender();
     }
+    this.componentDidMount = () => {
+      fetch();
+      unsub = client.onInvalidate(hash => hashes.includes(hash) && fetch());
+    };
+    this.componentDidUpdate = () =>
+      ((!opsEqual(query, this.props.query) &&
+        assign(query, this.props.query)) ||
+        !opsEqual(subscription, this.props.subscription)) &&
+      assign(subscription, this.props.subscription) &&
+      fetch();
+    this.componentWillUnmount = () => unsub();
 
     const subscribe = () => {
       if (state.stopped) return;
-      return runSubscription<any, SVars>(
-        client,
-        overrideOp(opts.subscription, this.props.subscription),
-        update
-      );
+      hashes.push(hashOp(subscription));
+      return runSubscription<any, SVars>(client, subscription, update);
     };
 
     const fetch = () => {
       stop();
+      hashes = [hashOp(query)];
       runQuery<T, QVars, OT>(
         client,
         assign(
@@ -82,7 +107,7 @@ export function withSubscription<
             data: state.data,
             updateQuery: opts.processUpdate,
           },
-          overrideOp(opts.query, this.props.query)
+          query
         )
       )
         .then(res => {
@@ -92,12 +117,6 @@ export function withSubscription<
         })
         .then(subscribe);
     };
-
-    this.componentDidMount = fetch;
-    this.componentDidUpdate = prev =>
-      (prev.query != this.props.query ||
-        prev.subscription != this.props.subscription) &&
-      fetch();
 
     this.render = props =>
       h(

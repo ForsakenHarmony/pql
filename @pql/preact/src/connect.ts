@@ -1,81 +1,116 @@
-import { Client, CtxFactory } from '@pql/client';
+import { Client } from '@pql/client';
 import { Component, ComponentConstructor, ComponentFactory, h } from 'preact';
-import { assign, EMPTY_OBJECT, Without } from './util';
+import {
+  assign,
+  EMPTY_OBJECT,
+  hashOp,
+  noop,
+  opsEqual,
+  overrideOp,
+  Without,
+} from './util';
 import { MutationArgs } from './with-mutation';
 import { IOperation } from './index';
 import { runMutation, runQuery } from './common';
 
 type SetMapType<K, T> = { [P in keyof K]: T };
 
-export interface ConnectProps {}
+export interface ConnectProps<Vars> {
+  variables?: Vars;
+}
 
-export interface ConnectOpts<QVars> {
+export interface MutationMap {
+  [key: string]: IOperation<any>;
+}
+
+export interface ConnectOpts<QVars, Mut extends MutationMap = {}> {
   query?: IOperation<QVars>;
-  mutation?: {
-    [key: string]: IOperation<any>;
-  };
-  refetch: boolean;
+  mutation?: Mut;
+  refetch?: boolean;
 }
 
 export interface ConnectMutate<T, Vars = {}> {
   (args: MutationArgs<T, Vars>): Promise<{ data: T | null; error?: any }>;
 }
 
-export type ConnnectedProps<T, Vars, O extends ConnectOpts<Vars>> = {
+export declare type ConnnectedProps<
+  T,
+  Vars = {},
+  Mut extends MutationMap = {},
+  O extends ConnectOpts<Vars, Mut> = ConnectOpts<Vars, Mut>
+> = {
   loaded: boolean;
   loading: boolean;
   error?: any;
   data: T | null;
   variables?: Vars;
-} & SetMapType<O['mutation'], ConnectMutate<any>>;
+} & SetMapType<Mut, ConnectMutate<any>>;
 
 interface ConnectState<T, Vars> {
   loaded: boolean;
   loading: boolean;
   error?: any;
   data: T | null;
-  query?: CtxFactory<Vars>;
-  variables?: Vars;
+  query?: IOperation<Vars>;
 }
 
 export function connect<
   T,
   QVars = {},
-  O extends ConnectOpts<QVars> = ConnectOpts<QVars>,
-  P extends ConnnectedProps<T, QVars, O> = ConnnectedProps<T, QVars, O>
+  Mut extends MutationMap = {},
+  O extends ConnectOpts<QVars, Mut> = ConnectOpts<QVars, Mut>,
+  P extends ConnnectedProps<T, QVars, Mut, O> = ConnnectedProps<
+    T,
+    QVars,
+    Mut,
+    O
+  >
 >(
   Child: ComponentFactory<P>,
   opts: O
-): ComponentFactory<ConnectProps & Without<P, ConnnectedProps<T, QVars, O>>> {
+): ComponentFactory<
+  ConnectProps<QVars> & Without<P, ConnnectedProps<T, QVars, Mut, O>>
+> {
   function PqlConnect(
     this: Component<any, any>,
-    _props: ConnectProps & P,
+    props: ConnectProps<QVars> & P,
     { client }: { client: Client }
   ) {
     const state: ConnectState<T, QVars> = {
       loaded: !opts.query,
       loading: !!opts.query,
       data: null,
-      query: opts.query && opts.query.query,
-      variables: opts.query && opts.query.variables,
+      query:
+        opts.query && overrideOp(opts.query, { variables: props.variables }),
     };
+
+    let unsub = noop;
+    let hash = '';
+
     const rerender = () => this.setState(EMPTY_OBJECT);
+    this.componentDidMount = () => {
+      unsub = client.onInvalidate(h => h === hash && fetch());
+      fetch();
+    };
+    this.componentDidUpdate = () =>
+      !opsEqual(state.query, this.props.query) && fetch();
+    this.componentWillUnmount = () => unsub();
 
     const fetch = () => {
-      state.query &&
-        runQuery<T, QVars>(client, {
-          query: state.query,
-          variables: state.variables,
-          data: state.data,
-        }).then(res => {
-          state.loading = false;
-          state.loaded = true;
-          assign(state, res);
-          rerender();
-        });
+      if (!state.query) return;
+      state.loading = true;
+      hash = hashOp(state.query);
+      rerender();
+      runQuery<T, QVars>(
+        client,
+        assign({ data: state.data }, state.query)
+      ).then(res => {
+        state.loading = false;
+        state.loaded = true;
+        assign(state, res);
+        rerender();
+      });
     };
-
-    this.componentDidMount = fetch;
 
     const mutate = <T, Vars>(
       op: IOperation<Vars>,
@@ -99,7 +134,7 @@ export function connect<
       });
     };
 
-    function buildResult(): ConnnectedProps<T, QVars, O> {
+    function buildResult(): ConnnectedProps<T, QVars, Mut, O> {
       const mutations: {
         [key: string]: IOperation<any>;
       } = opts.mutation || {};
@@ -110,7 +145,7 @@ export function connect<
           acc[val] = mutate.bind(null, mutations[val]);
           return acc;
         }, {})
-      ) as ConnnectedProps<T, QVars, O>;
+      ) as ConnnectedProps<T, QVars, Mut, O>;
     }
 
     this.render = props => h(Child, assign(props, buildResult()));

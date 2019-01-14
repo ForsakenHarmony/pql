@@ -1,3 +1,3 @@
 import test from 'ava';
 
-test('no tests', t => t.pass(":^)"));
+test('no tests', t => t.pass(':^)'));
