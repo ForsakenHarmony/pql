@@ -83,10 +83,10 @@ export function withSubscription<
       fetch();
       unsub = client.onInvalidate(hash => hashes.includes(hash) && fetch());
     };
-    this.componentDidUpdate = () =>
-      ((!opsEqual(query, this.props.query) &&
+    this.componentDidUpdate = prev =>
+      ((!opsEqual(prev.query, this.props.query) &&
         assign(query, this.props.query)) ||
-        !opsEqual(subscription, this.props.subscription)) &&
+        !opsEqual(prev.subscription, this.props.subscription)) &&
       assign(subscription, this.props.subscription) &&
       fetch();
     this.componentWillUnmount = () => unsub();
