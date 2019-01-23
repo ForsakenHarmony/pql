@@ -96,14 +96,14 @@ export function connect<
       !opsEqual(state.query, this.props.query) && fetch();
     this.componentWillUnmount = () => unsub();
 
-    const fetch = () => {
+    const fetch = (skipCache = false) => {
       if (!state.query) return;
       state.loading = true;
       hash = hashOp(state.query);
       rerender();
       runQuery<T, QVars>(
         client,
-        assign({ data: state.data }, state.query)
+        assign({ data: state.data, skipCache }, state.query)
       ).then(res => {
         state.loading = false;
         state.loaded = true;
@@ -128,7 +128,7 @@ export function connect<
         state.loading = false;
         rerender();
         if (opts.refetch) {
-          fetch();
+          fetch(true);
         }
         return res;
       });
