@@ -64,7 +64,7 @@ export function withSubscription<
       stopped: false,
     };
     let query = overrideOp(opts.query, props.query);
-    let subscription = overrideOp(opts.query, props.subscription);
+    let subscription = overrideOp(opts.subscription, props.subscription);
     let unsub = noop;
     let hashes: string[] = [];
 
