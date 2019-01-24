@@ -2,10 +2,10 @@ import { Client } from '@pql/client';
 import { Component, ComponentConstructor, ComponentFactory, h } from 'preact';
 import {
   assign,
+  dEql,
   EMPTY_OBJECT,
   hashOp,
   noop,
-  opsEqual,
   overrideOp,
   Without,
 } from './util';
@@ -93,7 +93,7 @@ export function connect<
       fetch();
     };
     this.componentDidUpdate = () =>
-      !opsEqual(state.query, this.props.query) && fetch();
+      !dEql(state.query, this.props.query) && fetch();
     this.componentWillUnmount = () => unsub();
 
     const fetch = (skipCache = false) => {

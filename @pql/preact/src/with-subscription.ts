@@ -5,7 +5,7 @@ import {
   EMPTY_OBJECT,
   hashOp,
   noop,
-  opsEqual,
+  dEql,
   overrideOp,
   Without,
 } from './util';
@@ -75,21 +75,30 @@ export function withSubscription<
       stop_: Function
     ) {
       stop = stop_;
-      data && (state.data = opts.processUpdate(state.data, data));
-      error && (state.error = error);
-      rerender();
+      let didChange = false;
+      if (data) {
+        const newData = opts.processUpdate(state.data, data);
+        if (!dEql(newData, state.data)) didChange = true;
+        state.data = newData;
+      }
+      if (!dEql(error, state.error)) didChange = true;
+      state.error = error;
+      didChange && rerender();
     }
     this.componentDidMount = () => {
       fetch();
       unsub = client.onInvalidate(hash => hashes.includes(hash) && fetch());
     };
     this.componentDidUpdate = prev =>
-      ((!opsEqual(prev.query, this.props.query) &&
+      ((!dEql(prev.query, this.props.query) &&
         assign(query, this.props.query)) ||
-        !opsEqual(prev.subscription, this.props.subscription)) &&
+        !dEql(prev.subscription, this.props.subscription)) &&
       assign(subscription, this.props.subscription) &&
       fetch();
-    this.componentWillUnmount = () => unsub();
+    this.componentWillUnmount = () => {
+      stop();
+      unsub();
+    };
 
     const subscribe = () => {
       if (state.stopped) return;
@@ -99,13 +108,13 @@ export function withSubscription<
     };
 
     const fetch = () => {
-      stop();
+      // stop();
       hashes = [hashOp(query)];
       runQuery<T, QVars, OT>(
         client,
         assign(
           {
-            data: state.data,
+            data: null,
             updateQuery: opts.processUpdate,
           },
           query
@@ -115,6 +124,7 @@ export function withSubscription<
           assign(state, res);
           state.loaded = true;
           rerender();
+          if (!state.data) throw new Error(state.error);
         })
         .then(subscribe);
     };
