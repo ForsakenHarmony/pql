@@ -94,6 +94,7 @@ export function withSubscription<
     const subscribe = () => {
       if (state.stopped) return;
       hashes.push(hashOp(subscription));
+      stop();
       return runSubscription<any, SVars>(client, subscription, update);
     };
 

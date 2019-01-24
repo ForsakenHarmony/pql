@@ -1,5 +1,4 @@
-import { Client, CtxFactory } from '@pql/client';
-import { noop } from './util';
+import { Client, CtxFactory, OperationResult } from '@pql/client';
 
 interface RunQueryOpts<T, Vars, OT = T> {
   query: CtxFactory<Vars>;
@@ -77,11 +76,32 @@ export function runSubscription<T, Vars>(
   { query, variables }: RunMutationOpts<T, Vars>,
   cb: (res: { data: T | null; error?: any }, stop: Function) => void
 ): Promise<void> {
-  return client
-    .subscribe<T, Vars>({
-      query: query,
-      variables: variables,
-    })
-    .forEach(cb)
-    .catch(error => cb({ error, data: null }, noop));
+  return new Promise((res, rej) => {
+    let unsubbed = false;
+    let unsub = () => {
+      unsubbed = true;
+    };
+    const sub = client
+      .subscribe<T, Vars>({
+        query: query,
+        variables: variables,
+      })
+      .subscribe({
+        next(value: OperationResult<T>): void {
+          cb(value, unsub);
+        },
+        error(error: any): void {
+          rej(error);
+          cb({ error, data: null }, unsub);
+        },
+        complete: res,
+      });
+    unsub = () => {
+      unsubbed = true;
+      sub.unsubscribe();
+      res();
+    };
+    unsubbed && unsub();
+    cb({ error: null, data: null }, unsub);
+  });
 }
