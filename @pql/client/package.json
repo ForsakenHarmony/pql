@@ -1,6 +1,6 @@
 {
   "name": "@pql/client",
-  "version": "0.2.0-alpha.4",
+  "version": "0.2.0-alpha.5",
   "description": "A lightweight graphql client",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "@types/graphql": "^14.0.5"
   },
   "devDependencies": {
-    "@pql/fetch": "^0.2.0-alpha.4",
+    "@pql/fetch": "^0.2.0-alpha.5",
     "@types/node-fetch": "^2.1.4",
     "node-fetch": "^2.3.0"
   },
