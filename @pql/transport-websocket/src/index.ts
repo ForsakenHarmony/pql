@@ -1,10 +1,10 @@
 import {
   Ctx,
+  GqlData,
   GqlTransport,
   graphqlError,
   networkError,
   OperationResult,
-  OperationVariables,
 } from '@pql/client';
 import { Observable, SubscriptionObserver } from '@pql/observable';
 
@@ -176,7 +176,7 @@ export class SocketTransport implements GqlTransport {
     this.ws.send(JSON.stringify(x));
   }
 
-  execute<T, Vars = OperationVariables>(
+  execute<T = GqlData, Vars = {}>(
     ctx: Ctx<Vars>
   ): Observable<OperationResult<T>> {
     return new Observable<OperationResult<T>>(observer => {

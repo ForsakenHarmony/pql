@@ -1,10 +1,10 @@
 import {
   Ctx,
+  GqlData,
   GqlTransport,
   graphqlError,
   networkError,
   OperationResult,
-  OperationVariables,
 } from '@pql/client';
 import { Observable } from '@pql/observable';
 
@@ -27,7 +27,7 @@ export class FetchTransport implements GqlTransport {
     if (!this.fetch) throw new Error('Could not find a fetch implementation');
   }
 
-  execute<T, Vars = OperationVariables>(
+  execute<T = GqlData, Vars = {}>(
     ctx: Ctx<Vars>
   ): Observable<OperationResult<T>> {
     return new Observable<OperationResult<T>>(observer => {
