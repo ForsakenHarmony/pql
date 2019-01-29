@@ -1,7 +1,12 @@
 {
-  "lerna": "3.3.0",
+  "version": "0.2.0-alpha.3",
   "packages": ["@pql/*"],
   "npmClient": "yarn",
   "useWorkspaces": true,
-  "version": "0.2.0-alpha.3"
+  "command": {
+    "publish": {
+      "message": "chore: bump version"
+    }
+  },
+  "lerna": "3.3.0"
 }

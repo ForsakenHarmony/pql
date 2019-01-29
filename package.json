@@ -12,6 +12,7 @@
     "test:all": "lerna run test --stream --parallel",
     "clean": "lerna run clean --parallel",
     "publish": "lerna publish",
+    "version": "lerna version",
     "prettier": "prettier **/*.{js,ts,tsx,json,css,md,yml} --write",
     "prepare": "npm run -s build"
   },
