@@ -2,10 +2,10 @@ import { Client } from '@pql/client';
 import { Component, ComponentConstructor, ComponentFactory, h } from 'preact';
 import {
   assign,
+  dEql,
   EMPTY_OBJECT,
   hashOp,
   noop,
-  opsEqual,
   overrideOp,
   Without,
 } from './util';
@@ -93,17 +93,17 @@ export function connect<
       fetch();
     };
     this.componentDidUpdate = () =>
-      !opsEqual(state.query, this.props.query) && fetch();
+      !dEql(state.query, this.props.query) && fetch();
     this.componentWillUnmount = () => unsub();
 
-    const fetch = () => {
+    const fetch = (skipCache = false) => {
       if (!state.query) return;
       state.loading = true;
       hash = hashOp(state.query);
       rerender();
       runQuery<T, QVars>(
         client,
-        assign({ data: state.data }, state.query)
+        assign({ data: state.data, skipCache }, state.query)
       ).then(res => {
         state.loading = false;
         state.loaded = true;
@@ -128,7 +128,7 @@ export function connect<
         state.loading = false;
         rerender();
         if (opts.refetch) {
-          fetch();
+          fetch(true);
         }
         return res;
       });

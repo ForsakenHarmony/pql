@@ -5,14 +5,7 @@ import {
   ComponentConstructor,
   RenderableProps,
 } from 'preact';
-import {
-  assign,
-  EMPTY_OBJECT,
-  hashOp,
-  noop,
-  opsEqual,
-  overrideOp,
-} from './util';
+import { assign, dEql, EMPTY_OBJECT, hashOp, noop, overrideOp } from './util';
 import { runQuery } from './common';
 import { IOperation } from './index';
 
@@ -72,7 +65,7 @@ export const Query: ComponentConstructor<
     unsub = client.onInvalidate(hash => hashes.includes(hash) && fetch());
   };
   this.componentDidUpdate = () =>
-    !opsEqual(state.query, this.props.query) && fetch();
+    !dEql(state.query, this.props.query) && fetch();
   this.componentWillUnmount = () => unsub();
 
   const fetch = ({
