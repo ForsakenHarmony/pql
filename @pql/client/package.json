@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "@pql/observable": "^0.2.0-alpha.3",
-    "@types/graphql": "^14.0.3"
+    "@types/graphql": "^14.0.5"
   },
   "devDependencies": {
     "@pql/fetch": "^0.2.0-alpha.4",
