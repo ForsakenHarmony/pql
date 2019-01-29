@@ -152,6 +152,7 @@ export function connect<
   }
 
   PqlConnect.prototype.__proto__ = Component.prototype;
+  PqlConnect.prototype.isReactComponent = true;
   PqlConnect.__proto__ = Component;
 
   return (PqlConnect as unknown) as ComponentConstructor<any>;

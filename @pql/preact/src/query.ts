@@ -119,3 +119,8 @@ export const Query: ComponentConstructor<
 
   return this;
 } as unknown) as ComponentConstructor<QueryProps<any, any>>;
+
+Query.prototype.__proto__ = Component.prototype;
+Query.prototype.isReactComponent = true;
+// @ts-ignore
+Query.__proto__ = Component;

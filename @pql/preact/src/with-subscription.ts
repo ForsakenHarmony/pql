@@ -133,6 +133,7 @@ export function withSubscription<
   }
 
   WithSubscription.prototype.__proto__ = Component.prototype;
+  WithSubscription.prototype.isReactComponent = true;
   WithSubscription.__proto__ = Component;
 
   return (WithSubscription as unknown) as ComponentConstructor<any>;

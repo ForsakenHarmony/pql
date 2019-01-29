@@ -143,6 +143,7 @@ export function withMutation<T, P extends MutatedProps<T, Vars>, Vars = {}>(
   }
 
   WithMutation.prototype.__proto__ = Component.prototype;
+  WithMutation.prototype.isReactComponent = true;
   WithMutation.__proto__ = Component;
 
   return WithMutation as any;
