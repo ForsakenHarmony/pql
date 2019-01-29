@@ -40,7 +40,9 @@ export class FetchTransport implements GqlTransport {
 
       const controller = createAbortController();
 
-      this.fetch(this.opts.url, {
+      // fix illegal invocation
+      const fetch = this.fetch;
+      fetch(this.opts.url, {
         method: 'POST',
         body: JSON.stringify(ctx.operation),
         headers: Object.assign(this.opts.headers || {}, {
