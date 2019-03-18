@@ -24,6 +24,9 @@
     "test": "cross-env TS_NODE_PROJECT=tsconfig.test.json ava",
     "clean": "rimraf dist .rts2*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "ava": {
     "compileEnhancements": false,
     "extensions": [
