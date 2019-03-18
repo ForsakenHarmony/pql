@@ -1,11 +1,10 @@
-import { GraphQLError } from 'graphql';
 import { Observable } from '@pql/observable';
-import { Client } from './index';
+import { Client, PqlError } from './index';
+import { GqlRequest } from './request';
 
 export type Obj = {
   [key: string]: any;
 };
-export type OperationVariables = Obj;
 
 export interface Operation<Vars = {}> {
   query: string;
@@ -13,49 +12,38 @@ export interface Operation<Vars = {}> {
   variables?: Vars;
 }
 
-export interface Ctx<Vars = {}> {
+export interface OperationContext<Vars = {}> {
   hash: string;
   operationType: 'query' | 'mutation' | 'subscription';
   operation: Operation<Vars>;
   client: Client;
+
   // extra
   [key: string]: any;
 }
 
-export interface CtxFactory<Vars = {}> {
-  (client: Client, extra?: Obj, vars?: Vars): Ctx<Vars>;
-  query: string;
-}
-
 export interface OperationOptions<Vars = {}> {
-  variables?: Vars;
-  query: CtxFactory<Vars>;
+  request: GqlRequest<Vars>;
   extra?: Obj;
 }
 
-export interface OperationError {
-  graphql: GraphQLError[];
-}
+export interface OperationResult<T = Obj> {
+  data?: T;
+  error?: PqlError;
 
-export interface GqlData {
-  [key: string]: any;
-}
-
-export interface OperationResult<T = GqlData> {
-  data: T | null;
-  error?: OperationError;
   // extra
   [key: string]: any;
 }
 
 export type MiddlewareFn<Vars, Res> = (
-  ctx: Ctx<Vars>,
-  next: (ctx: Ctx<Vars>) => Observable<OperationResult<Res>>
+  ctx: OperationContext<Vars>,
+  next: (ctx: OperationContext<Vars>) => Observable<OperationResult<Res>>
 ) => Observable<OperationResult<Res>>;
 
 export interface GqlTransport {
-  execute<T = GqlData, Vars = {}>(
-    operation: Ctx<Vars>
+  execute<T = Obj, Vars = {}>(
+    operation: OperationContext<Vars>
   ): Observable<OperationResult<T>>;
+
   close(): Promise<void>;
 }
