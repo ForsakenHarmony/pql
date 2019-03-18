@@ -1,7 +1,7 @@
 {
-  "name": "@pql/client",
+  "name": "@pql/hooks",
   "version": "0.2.0-alpha.5",
-  "description": "A lightweight graphql client",
+  "description": "React hooks for pql",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
   "esnext": "dist/es/index.js",
@@ -11,17 +11,13 @@
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
-  "dependencies": {
-    "@pql/observable": "^0.2.0-alpha.3",
-    "@types/graphql": "^14.0.7"
+  "peerDependencies": {
+    "@pql/client": "^0.2.0-alpha.5",
+    "preact": "^10.0.0-alpha.2"
   },
   "devDependencies": {
-    "@pql/fetch": "^0.2.0-alpha.5",
-    "@types/node-fetch": "^2.1.6",
-    "node-fetch": "^2.3.0"
-  },
-  "peerDependencies": {
-    "graphql": "^14.0.2"
+    "@pql/client": "^0.2.0-alpha.5",
+    "preact": "^10.0.0-alpha.2"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",
