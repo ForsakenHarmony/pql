@@ -191,6 +191,15 @@ export class Observable<T> implements IObservable<T> {
       );
     });
   }
+
+  toPromise(): Promise<T> {
+    return new Promise<T>((res, rej) => {
+      this.forEach((item, unsub) => {
+        res(item);
+        unsub();
+      }).then(rej, rej);
+    });
+  }
 }
 
 export interface ISubscription {
