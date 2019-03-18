@@ -3,7 +3,7 @@
 ## Basic Usage
 
 ```tsx
-import { createClient, Provider, useQuery } from '@pql/boost';
+import { createClient, Provider, useQuery, gql } from '@pql/boost';
 
 const client = createClient('https://graphql-pokemon.now.sh');
 
@@ -50,6 +50,14 @@ function ExampleComponent() {
 ## API
 
 ### Exports
+
+#### `gql`
+
+```ts
+gql`...` | gql('...');
+```
+
+A convenience method, helps with editor support, doesn't do anyhting right now
 
 #### `createClient`
 
