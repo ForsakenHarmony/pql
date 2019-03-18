@@ -1,5 +1,10 @@
-import { MiddlewareFn, GqlData } from '@pql/client';
-import { Observable } from '@pql/observable';
+import {
+  Obj,
+  MiddlewareFn,
+  OperationResult,
+  OperationContext,
+} from '@pql/client';
+import { Observable, SubscriptionObserver } from '@pql/observable';
 
 export interface ICacheStorage {
   read(hash: any): Promise<any>;
@@ -11,15 +16,16 @@ export interface ICacheStorage {
   invalidateAll(): Promise<any>;
 }
 
+// type -> id -> hash
 interface InvalidationMap {
-  [key: string]: {
-    [key: string]: string[];
+  [type: string]: {
+    [id: string]: string[];
   };
 }
 
 function invalidateDepsFromInvalidationMap(
   invalidationMap: InvalidationMap,
-  data: GqlData,
+  data: Obj,
   hash: string
 ): string[] {
   const hashes: string[] = [];
@@ -48,7 +54,7 @@ function invalidateDepsFromInvalidationMap(
 
 function addDepsToInvalidationMap(
   invalidationMap: InvalidationMap,
-  data: GqlData,
+  data: Obj,
   hash: string
 ) {
   if (typeof data.__typename === 'string' && data.id) {
@@ -68,50 +74,90 @@ function addDepsToInvalidationMap(
   }
 }
 
+interface HashCacheMap {
+  [hash: string]: {
+    ctx: OperationContext<any>;
+    next: (ctx: OperationContext<any>) => Observable<OperationResult<any>>;
+    observers: SubscriptionObserver<OperationResult<any>>[];
+  };
+}
+
 export function cache(storage: ICacheStorage): MiddlewareFn<any, any> {
   const invalidationMap: InvalidationMap = {};
+  const hashCache: HashCacheMap = {};
+
+  function fetchQuery(hash: string) {
+    const { ctx, next, observers } = hashCache[hash];
+    next(ctx).subscribe({
+      next(res) {
+        const { data } = res;
+        if (data) {
+          storage.write(ctx.hash, data);
+          addDepsToInvalidationMap(invalidationMap, data, ctx.hash);
+        }
+        observers.map(obs => {
+          obs.next(res);
+        });
+      },
+      error(error) {
+        observers.map(obs => {
+          obs.next({ error });
+        });
+      },
+    });
+  }
+
   return (ctx, next) => {
-    const { hash, skipCache, operationType, client } = ctx;
+    const { hash, skipCache, operationType } = ctx;
     const isQuery = operationType === 'query';
     const isSubscription = operationType === 'subscription';
+    const cache =
+      hashCache[hash] || (hashCache[hash] = { ctx, next, observers: [] });
 
     return new Observable(observer => {
-      (skipCache || !isQuery
-        ? Promise.resolve(undefined)
-        : storage.read(hash).catch(() => void 0)
-      ).then(data => {
+      if (isQuery) cache.observers.push(observer);
+
+      const prom =
+        skipCache || !isQuery
+          ? Promise.resolve(undefined)
+          : storage.read(hash).catch(() => void 0);
+
+      prom.then(data => {
         if (data) {
           observer.next({ data });
-          return observer.complete();
+          return;
         }
 
-        next(ctx)
-          .map(res => {
-            try {
-              if (res.data) {
-                if (isQuery) {
-                  storage.write(hash, res.data);
-                  addDepsToInvalidationMap(invalidationMap, res, hash);
-                } else if (isSubscription) {
-                  addDepsToInvalidationMap(invalidationMap, res, hash);
+        if (isQuery) {
+          fetchQuery(hash);
+        } else {
+          next(ctx)
+            .map(res => {
+              const { data } = res;
+              if (data) {
+                if (isSubscription) {
+                  addDepsToInvalidationMap(invalidationMap, data, hash);
                 } else {
                   invalidateDepsFromInvalidationMap(
                     invalidationMap,
-                    res,
+                    data,
                     hash
-                  ).map(
-                    hash => storage.invalidate(hash) && client.invalidate(hash)
-                  );
+                  ).map(hash => {
+                    storage.invalidate(hash);
+                    fetchQuery(hash);
+                  });
                 }
               }
-            } catch (e) {
-              // we don't want to fuck over other stuff when the cache dies
-              console.error('Cache Error: ', e);
-            }
-            return res;
-          })
-          .subscribe(observer);
+              return res;
+            })
+            .subscribe(observer);
+        }
       });
+
+      return () => {
+        observer.complete();
+        isQuery && cache.observers.splice(cache.observers.indexOf(observer), 1);
+      };
     });
   };
 }
