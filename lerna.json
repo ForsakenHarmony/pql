@@ -1,12 +1,13 @@
 {
   "version": "0.2.0-alpha.5",
-  "packages": ["@pql/*"],
   "npmClient": "yarn",
-  "useWorkspaces": true,
   "command": {
     "publish": {
+      "ignoreChanges": ["ignored-file", "*.md"],
       "message": "chore: bump version"
     }
   },
-  "lerna": "3.3.0"
+  "packages": [
+    "@pql/*"
+  ]
 }
