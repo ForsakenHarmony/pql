@@ -1,9 +1,9 @@
 import {
-  Ctx,
-  GqlData,
+  Obj,
   GqlTransport,
   graphqlError,
   networkError,
+  OperationContext,
   OperationResult,
 } from '@pql/client';
 import { Observable, SubscriptionObserver } from '@pql/observable';
@@ -67,6 +67,7 @@ export class SocketTransport implements GqlTransport {
         type: string;
         payload: any;
       };
+      type: 'query' | 'mutation' | 'subscription';
     };
   } = {};
   private lastid: number = 0;
@@ -138,7 +139,9 @@ export class SocketTransport implements GqlTransport {
       const message = msg(MsgTypes.GQL_CONNECTION_INIT, this.opts.headers);
 
       this.json(message);
-      Object.values(this.subscriptions).forEach(s => this.json(s.message));
+      Object.values(this.subscriptions).forEach(
+        s => s.type !== 'mutation' && this.json(s.message)
+      );
     };
 
     this.ws.onclose = e => {
@@ -176,14 +179,14 @@ export class SocketTransport implements GqlTransport {
     this.ws.send(JSON.stringify(x));
   }
 
-  execute<T = GqlData, Vars = {}>(
-    ctx: Ctx<Vars>
+  execute<T = Obj, Vars = {}>(
+    ctx: OperationContext<Vars>
   ): Observable<OperationResult<T>> {
     return new Observable<OperationResult<T>>(observer => {
       const id = String(this.lastid++);
 
       const message = msg(MsgTypes.GQL_START, ctx.operation, id) as any;
-      this.subscriptions[id] = { observer, message };
+      this.subscriptions[id] = { observer, message, type: ctx.type };
       if (this.online && this.isOpen) this.json(message);
       return () => {
         this.json(msg(MsgTypes.GQL_STOP, null, id));
