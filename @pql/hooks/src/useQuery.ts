@@ -2,23 +2,23 @@ import { createRequest, Obj, PqlError } from '@pql/client';
 import { noop, useClient } from './util';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
-interface UseQueryArgs<V> {
+export interface UseQueryArgs<V> {
   query: string;
   variables?: V;
 }
 
-interface UseQueryState<T> {
+export interface UseQueryState<T> {
   fetching: boolean;
   data?: T | null;
   error?: PqlError;
 }
 
-type UseQueryResponse<T> = [UseQueryState<T>, (extra?: Obj) => void];
+export type UseQueryResponse<T> = [UseQueryState<T>, (extra?: Obj) => void];
 
 export const useQuery = <T = any, V = object>(
   args: UseQueryArgs<V>
 ): UseQueryResponse<T> => {
-  let unsubscribe = noop;
+  let [queryUnsubscribe, setQueryUnsubscribe] = useState(() => noop);
 
   const client = useClient();
   const request = createRequest(args.query, args.variables);
@@ -31,7 +31,7 @@ export const useQuery = <T = any, V = object>(
 
   const executeQuery = useCallback(
     (extra: Obj = {}) => {
-      unsubscribe();
+      queryUnsubscribe();
       setState(s => ({ ...s, fetching: true }));
 
       const sub = client
@@ -48,14 +48,14 @@ export const useQuery = <T = any, V = object>(
           },
         });
 
-      unsubscribe = sub.unsubscribe;
+      setQueryUnsubscribe(sub.unsubscribe);
     },
     [request.hash]
   );
 
   useEffect(() => {
     executeQuery();
-    return unsubscribe;
+    return queryUnsubscribe;
   }, [request.hash]);
 
   return [state, executeQuery];

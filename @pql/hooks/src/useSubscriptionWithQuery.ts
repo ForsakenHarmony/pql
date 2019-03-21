@@ -1,10 +1,12 @@
 import { createRequest, PqlError } from '@pql/client';
 import { noop, useClient } from './util';
 import { useCallback, useEffect, useState } from 'preact/hooks';
+import { UseSubscriptionArgs } from './useSubscription';
+import { UseQueryArgs } from './useQuery';
 
-interface UseSubscriptionArgs<V> {
-  query: string;
-  variables?: V;
+interface UseSubscriptionWithQueryArgs<QV, SV> {
+  query: UseQueryArgs<QV>;
+  subscription: UseSubscriptionArgs<SV>;
 }
 
 type SubscriptionHandler<T, R> = (prev: R, data: T) => R;
@@ -17,16 +19,26 @@ interface UseSubscriptionState<T> {
 
 type UseSubscriptionResponse<T> = [UseSubscriptionState<T>];
 
-export const useSubscriptionWithQuery = <T = any, R = T, V = object>(
-  args: UseSubscriptionArgs<V>,
+export const useSubscriptionWithQuery = <
+  T = any,
+  R = T,
+  QV = object,
+  SV = object
+>(
+  args: UseSubscriptionWithQueryArgs<QV, SV>,
   handler?: SubscriptionHandler<T, R>
 ): UseSubscriptionResponse<R> => {
-  let queryUnsubscribe = noop;
-  let subcriptionUnsubscribe = noop;
+  let [queryUnsubscribe, setQueryUnsubscribe] = useState(() => noop);
+  let [subscriptionUnsubscribe, setSubscriptionUnsubscribe] = useState(
+    () => noop
+  );
 
   const client = useClient();
-  const queryRequest = createRequest(args.query, args.variables);
-  const subRequest = createRequest(args.query, args.variables);
+  const queryRequest = createRequest(args.query.query, args.query.variables);
+  const subRequest = createRequest(
+    args.subscription.query,
+    args.subscription.variables
+  );
 
   const [state, setState] = useState<UseSubscriptionState<R>>({
     fetching: true,
@@ -35,10 +47,10 @@ export const useSubscriptionWithQuery = <T = any, R = T, V = object>(
   });
 
   const executeSubscription = useCallback(() => {
-    subcriptionUnsubscribe();
+    subscriptionUnsubscribe();
 
     const sub = client
-      .execute<T, V>({
+      .execute<T, SV>({
         request: subRequest,
       })
       .subscribe({
@@ -57,7 +69,7 @@ export const useSubscriptionWithQuery = <T = any, R = T, V = object>(
         },
       });
 
-    subcriptionUnsubscribe = sub.unsubscribe;
+    setSubscriptionUnsubscribe(sub.unsubscribe);
   }, [subRequest.hash]);
 
   const executeQuery = useCallback(() => {
@@ -65,7 +77,7 @@ export const useSubscriptionWithQuery = <T = any, R = T, V = object>(
     setState(s => ({ ...s, fetching: true }));
 
     const sub = client
-      .execute<R, V>({
+      .execute<R, QV>({
         request: queryRequest,
       })
       .subscribe({
@@ -78,14 +90,14 @@ export const useSubscriptionWithQuery = <T = any, R = T, V = object>(
         },
       });
 
-    queryUnsubscribe = sub.unsubscribe;
+    setQueryUnsubscribe(sub.unsubscribe);
   }, [queryRequest.hash]);
 
   useEffect(() => {
     executeQuery();
     return () => {
       queryUnsubscribe();
-      subcriptionUnsubscribe();
+      subscriptionUnsubscribe();
     };
   }, [queryRequest.hash, subRequest.hash]);
 

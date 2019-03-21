@@ -2,25 +2,27 @@ import { createRequest, PqlError } from '@pql/client';
 import { noop, useClient } from './util';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
-interface UseSubscriptionArgs<V> {
+export interface UseSubscriptionArgs<V> {
   query: string;
   variables?: V;
 }
 
-type SubscriptionHandler<T, R> = (prev: R | void, data: T) => R;
+export type SubscriptionHandler<T, R> = (prev: R | void, data: T) => R;
 
-interface UseSubscriptionState<T> {
+export interface UseSubscriptionState<T> {
   data?: T;
   error?: PqlError;
 }
 
-type UseSubscriptionResponse<T> = [UseSubscriptionState<T>];
+export type UseSubscriptionResponse<T> = [UseSubscriptionState<T>];
 
 export const useSubscription = <T = any, R = T, V = object>(
   args: UseSubscriptionArgs<V>,
   handler?: SubscriptionHandler<T, R>
 ): UseSubscriptionResponse<R> => {
-  let unsubscribe = noop;
+  let [subscriptionUnsubscribe, setSubscriptionUnsubscribe] = useState(
+    () => noop
+  );
 
   const client = useClient();
   const request = createRequest(args.query, args.variables);
@@ -31,7 +33,7 @@ export const useSubscription = <T = any, R = T, V = object>(
   });
 
   const executeSubscription = useCallback(() => {
-    unsubscribe();
+    subscriptionUnsubscribe();
 
     const sub = client
       .execute<T, V>({
@@ -52,12 +54,12 @@ export const useSubscription = <T = any, R = T, V = object>(
         },
       });
 
-    unsubscribe = sub.unsubscribe;
+    setSubscriptionUnsubscribe(sub.unsubscribe);
   }, [request.hash]);
 
   useEffect(() => {
     executeSubscription();
-    return unsubscribe;
+    return subscriptionUnsubscribe;
   }, [request.hash]);
 
   return [state];
