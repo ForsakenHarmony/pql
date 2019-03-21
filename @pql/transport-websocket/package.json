@@ -44,5 +44,9 @@
     "require": [
       "ts-node/register"
     ]
-  }
+  },
+  "files": [
+    "src",
+    "dist"
+  ]
 }
