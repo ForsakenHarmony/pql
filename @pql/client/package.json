@@ -15,11 +15,6 @@
     "@pql/observable": "^0.2.0-alpha.6",
     "@types/graphql": "^14.0.7"
   },
-  "devDependencies": {
-    "@pql/fetch": "^0.2.0-alpha.6",
-    "@types/node-fetch": "^2.1.6",
-    "node-fetch": "^2.3.0"
-  },
   "peerDependencies": {
     "graphql": "^14.0.2"
   },
