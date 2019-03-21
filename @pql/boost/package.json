@@ -1,6 +1,6 @@
 {
   "name": "@pql/boost",
-  "version": "0.2.0-alpha.7",
+  "version": "0.2.0-alpha.8",
   "description": "Definitely not a stolen name",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@pql/cache": "^0.2.0-alpha.7",
     "@pql/client": "^0.2.0-alpha.7",
-    "@pql/hooks": "^0.2.0-alpha.7",
+    "@pql/hooks": "^0.2.0-alpha.8",
     "@pql/websocket": "^0.2.0-alpha.7"
   },
   "peerDependencies": {
