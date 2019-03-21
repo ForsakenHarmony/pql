@@ -1,6 +1,6 @@
 {
   "name": "@pql/macro",
-  "version": "0.2.0-alpha.6",
+  "version": "0.2.0-alpha.7",
   "description": "Babel macro for pql",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
@@ -15,8 +15,8 @@
     "@pql/client": "^0.2.0-alpha.5"
   },
   "dependencies": {
-    "graphql": "^14.1.1",
-    "babel-plugin-macros": "^2.5.0"
+    "babel-plugin-macros": "^2.5.0",
+    "graphql": "^14.1.1"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",

@@ -1,9 +1,12 @@
 {
-  "version": "0.2.0-alpha.6",
+  "version": "0.2.0-alpha.7",
   "npmClient": "yarn",
   "command": {
     "publish": {
-      "ignoreChanges": ["ignored-file", "*.md"],
+      "ignoreChanges": [
+        "ignored-file",
+        "*.md"
+      ],
       "message": "chore: bump version"
     }
   },

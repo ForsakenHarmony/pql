@@ -1,6 +1,6 @@
 {
   "name": "@pql/observable",
-  "version": "0.2.0-alpha.6",
+  "version": "0.2.0-alpha.7",
   "description": "A lightweight observable implementation",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
