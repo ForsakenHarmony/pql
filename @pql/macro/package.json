@@ -1,6 +1,6 @@
 {
   "name": "@pql/macro",
-  "version": "0.2.0-alpha.7",
+  "version": "0.2.0-alpha.9",
   "description": "Babel macro for pql",
   "source": "src/index.ts",
   "typings": "index.d.ts",

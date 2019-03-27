@@ -1,6 +1,6 @@
 {
   "name": "@pql/websocket",
-  "version": "0.2.0-alpha.7",
+  "version": "0.2.0-alpha.9",
   "description": "Websocket transport for pql",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
@@ -12,13 +12,13 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "dependencies": {
-    "@pql/observable": "^0.2.0-alpha.7"
+    "@pql/observable": "^0.2.0-alpha.9"
   },
   "peerDependencies": {
     "@pql/client": "^0.2.0-alpha.5"
   },
   "devDependencies": {
-    "@pql/client": "^0.2.0-alpha.7"
+    "@pql/client": "^0.2.0-alpha.9"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",
