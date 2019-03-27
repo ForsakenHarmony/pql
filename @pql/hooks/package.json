@@ -1,6 +1,6 @@
 {
   "name": "@pql/hooks",
-  "version": "0.2.0-alpha.11",
+  "version": "0.2.0-alpha.12",
   "description": "React hooks for pql",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
