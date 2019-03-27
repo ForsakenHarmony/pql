@@ -69,7 +69,7 @@ export const useSubscriptionWithQuery = <
         },
       });
 
-    setSubscriptionUnsubscribe(sub.unsubscribe.bind(sub));
+    setSubscriptionUnsubscribe(() => sub.unsubscribe.bind(sub));
   }, [subRequest.hash]);
 
   const executeQuery = useCallback(() => {
@@ -90,7 +90,7 @@ export const useSubscriptionWithQuery = <
         },
       });
 
-    setQueryUnsubscribe(sub.unsubscribe.bind(sub));
+    setQueryUnsubscribe(() => sub.unsubscribe.bind(sub));
   }, [queryRequest.hash]);
 
   useEffect(() => {
