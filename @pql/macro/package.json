@@ -6,7 +6,7 @@
   "typings": "index.d.ts",
   "esnext": "dist/es/index.js",
   "module": "dist/index.es.js",
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
   "repository": "ForsakenHarmony/pql",
   "author": "Leah <me@hrmny.pw>",
