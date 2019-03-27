@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'preact/hooks';
 export interface UseQueryArgs<V> {
   query: string;
   variables?: V;
+  skip?: boolean;
 }
 
 export interface UseQueryState<T> {
@@ -54,9 +55,10 @@ export const useQuery = <T = any, V = object>(
   );
 
   useEffect(() => {
+    if (args.skip) return;
     executeQuery();
     return queryUnsubscribe;
-  }, [request.hash]);
+  }, [request.hash, args.skip]);
 
   return [state, executeQuery];
 };
