@@ -11,11 +11,7 @@ export function createClient(url: string, headers: Obj = {}) {
   return new Client(socket, [cache(new DefaultStorage())]);
 }
 
-export { gql } from '@pql/client';
-export {
-  Provider,
-  useQuery,
-  useMutation,
-  useSubscription,
-  useSubscriptionWithQuery,
-} from '@pql/hooks';
+export * from '@pql/cache';
+export * from '@pql/websocket';
+export * from '@pql/client';
+export * from '@pql/hooks';
