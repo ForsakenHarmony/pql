@@ -48,7 +48,7 @@ export const useQuery = <T = any, V = object>(
           },
         });
 
-      setQueryUnsubscribe(sub.unsubscribe.bind(sub));
+      setQueryUnsubscribe(() => sub.unsubscribe.bind(sub));
     },
     [request.hash]
   );

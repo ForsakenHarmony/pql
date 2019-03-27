@@ -54,7 +54,7 @@ export const useSubscription = <T = any, R = T, V = object>(
         },
       });
 
-    setSubscriptionUnsubscribe(sub.unsubscribe.bind(sub));
+    setSubscriptionUnsubscribe(() => sub.unsubscribe.bind(sub));
   }, [request.hash]);
 
   useEffect(() => {
