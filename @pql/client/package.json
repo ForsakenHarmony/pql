@@ -1,6 +1,6 @@
 {
   "name": "@pql/client",
-  "version": "0.2.0-alpha.9",
+  "version": "0.2.0-alpha.14",
   "description": "A lightweight graphql client",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
