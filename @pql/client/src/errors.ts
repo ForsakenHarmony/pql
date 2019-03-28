@@ -26,6 +26,8 @@ export class PqlError extends Error {
     public networkError?: Error
   ) {
     super(errorMessage || generateErrorMessage(graphQLErrors, networkError));
+    // workaround for ja🅱ascript stupidity
+    Object.setPrototypeOf(this, PqlError.prototype);
   }
 }
 
