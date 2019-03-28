@@ -10,8 +10,8 @@ export interface UseQueryArgs<V> {
 
 export interface UseQueryState<T> {
   fetching: boolean;
-  data?: T | null;
-  error?: PqlError;
+  data: T | null;
+  error: PqlError | null;
 }
 
 export type UseQueryResponse<T> = [UseQueryState<T>, (extra?: Obj) => void];
@@ -26,7 +26,7 @@ export const useQuery = <T = any, V = object>(
 
   const [state, setState] = useState<UseQueryState<T>>({
     fetching: false,
-    error: undefined,
+    error: null,
     data: null,
   });
 

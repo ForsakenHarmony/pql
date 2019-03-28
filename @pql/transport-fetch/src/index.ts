@@ -17,7 +17,7 @@ export class FetchTransport implements GqlTransport {
   private readonly fetch: GlobalFetch['fetch'];
 
   constructor(
-    private readonly opts: {
+    private opts: {
       url: string;
       headers?: { [key: string]: string };
       fetch?: GlobalFetch['fetch'];
@@ -52,11 +52,17 @@ export class FetchTransport implements GqlTransport {
       })
         .then(res => res.json())
         .then(result => {
-          Array.isArray(result.errors) && !result.data
-            ? observer.error(graphqlError(result.errors))
-            : result.data
-            ? (observer.next(result), observer.complete())
-            : observer.error(networkError(new Error('No data or error')));
+          if (result.data) {
+            observer.next({
+              data: result.data,
+              error: result.errors ? graphqlError(result.errors) : null,
+            });
+            observer.complete();
+          } else if (Array.isArray(result.errors)) {
+            observer.error(graphqlError(result.errors));
+          } else {
+            observer.error(networkError(new Error('No data or error')));
+          }
         })
         .catch(err => {
           if (err.name !== 'AbortError') observer.error(networkError(err));
@@ -66,6 +72,10 @@ export class FetchTransport implements GqlTransport {
         controller.abort && controller.abort();
       };
     });
+  }
+
+  setHeaders(headers: Obj): void {
+    this.opts.headers = headers;
   }
 
   close() {

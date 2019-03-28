@@ -61,7 +61,7 @@ export class SocketTransport implements GqlTransport {
   private readonly opts: SocketOptions;
   private subscriptions: {
     [key: string]: {
-      observer: SubscriptionObserver<any>;
+      observer: SubscriptionObserver<OperationResult<any>>;
       message: {
         id: string;
         type: string;
@@ -98,9 +98,16 @@ export class SocketTransport implements GqlTransport {
   }
 
   private onMessage(event: MessageEvent) {
-    const data = JSON.parse(event.data);
+    const data: {
+      id?: string;
+      type: string;
+      payload?: null | {
+        data: null | any;
+        errors?: null | any[];
+      };
+    } = JSON.parse(event.data);
 
-    const sub = this.subscriptions[data.id];
+    const sub = this.subscriptions[data.id!];
 
     switch (data.type) {
       case MsgTypes.GQL_CONNECTION_ACK: {
@@ -112,16 +119,22 @@ export class SocketTransport implements GqlTransport {
         break;
       }
       case MsgTypes.GQL_DATA: {
-        sub && sub.observer.next(data.payload);
+        sub &&
+          sub.observer.next({
+            data: data.payload!.data!,
+            error: data.payload!.errors
+              ? graphqlError(data.payload!.errors!)
+              : null,
+          });
         break;
       }
       case MsgTypes.GQL_COMPLETE: {
         sub && sub.observer.complete();
-        delete this.subscriptions[data.id];
+        delete this.subscriptions[data.id!];
         break;
       }
       case MsgTypes.GQL_ERROR: {
-        sub && sub.observer.error(graphqlError(data.payload));
+        sub && sub.observer.error(graphqlError(data.payload!.errors!));
         break;
       }
     }
@@ -135,16 +148,29 @@ export class SocketTransport implements GqlTransport {
     this.ws.onopen = () => {
       this.isOpen = true;
       this.counter = 0;
+      this.isReconnecting = false;
 
       const message = msg(MsgTypes.GQL_CONNECTION_INIT, this.opts.headers);
 
       this.json(message);
-      Object.values(this.subscriptions).forEach(
-        s => s.type !== 'mutation' && this.json(s.message)
-      );
+      Object.values(this.subscriptions).forEach(s => this.json(s.message));
     };
 
     this.ws.onclose = e => {
+      if (!this.isReconnecting) {
+        Object.values(this.subscriptions).forEach(s => {
+          if (s.type === 'mutation') {
+            s.observer.error(
+              networkError(
+                new Error(
+                  'Websocket closed' + (e.reason ? ': ' + e.reason : '.')
+                )
+              )
+            );
+            delete this.subscriptions[s.message.id];
+          }
+        });
+      }
       if (~[0, 1, 5, 10].map(i => i + 1e3).indexOf(e.code)) {
         this.isOpen = false;
         this.isReconnecting = false;
@@ -155,16 +181,22 @@ export class SocketTransport implements GqlTransport {
     };
   }
 
-  private flushError(e?: Event) {
+  private flushError(e?: CloseEvent) {
     Object.values(this.subscriptions).forEach(
       ({ observer, message: { id } }) => {
-        observer.error(networkError(e as any));
+        observer.error(
+          networkError(
+            new Error(
+              'Websocket closed' + (e && e.reason ? ': ' + e.reason : '.')
+            )
+          )
+        );
         delete this.subscriptions[id];
       }
     );
   }
 
-  private reconnect(e?: Event) {
+  private reconnect(e?: CloseEvent) {
     if (this.counter < this.max) {
       if (!this.online) return;
       this.counter++;
@@ -187,11 +219,18 @@ export class SocketTransport implements GqlTransport {
 
       const message = msg(MsgTypes.GQL_START, ctx.operation, id) as any;
       this.subscriptions[id] = { observer, message, type: ctx.type };
-      if (this.online && this.isOpen) this.json(message);
+      if (this.online && this.isOpen && !this.isReconnecting)
+        this.json(message);
       return () => {
         this.json(msg(MsgTypes.GQL_STOP, null, id));
       };
     });
+  }
+
+  setHeaders(headers: Obj): void {
+    this.opts.headers = headers;
+    this.ws.close(1000, 'closed');
+    this.reconnect();
   }
 
   close() {

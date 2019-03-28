@@ -12,7 +12,7 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "peerDependencies": {
-    "@pql/client": "^0.2.0-alpha.5"
+    "@pql/client": "^0.2.0-alpha.9"
   },
   "dependencies": {
     "babel-plugin-macros": "^2.5.0",

@@ -28,8 +28,8 @@ export interface OperationOptions<Vars = {}> {
 }
 
 export interface OperationResult<T = Obj> {
-  data?: T;
-  error?: PqlError;
+  data: T | null;
+  error: PqlError | null;
 
   // extra
   [key: string]: any;
@@ -44,6 +44,8 @@ export interface GqlTransport {
   execute<T = Obj, Vars = {}>(
     operation: OperationContext<Vars>
   ): Observable<OperationResult<T>>;
+
+  setHeaders(headers: Obj): void;
 
   close(): Promise<void>;
 }

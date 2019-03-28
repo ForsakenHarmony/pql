@@ -101,7 +101,7 @@ export function cache(storage: ICacheStorage): MiddlewareFn<any, any> {
       },
       error(error) {
         observers.map(obs => {
-          obs.next({ error });
+          obs.next({ error, data: null });
         });
       },
     });
@@ -124,7 +124,7 @@ export function cache(storage: ICacheStorage): MiddlewareFn<any, any> {
 
       prom.then(data => {
         if (data) {
-          observer.next({ data });
+          observer.next({ data, error: null });
           return;
         }
 

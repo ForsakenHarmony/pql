@@ -13,8 +13,8 @@ type SubscriptionHandler<T, R> = (prev: R, data: T) => R;
 
 interface UseSubscriptionState<T> {
   fetching: boolean;
-  data?: T;
-  error?: PqlError;
+  data: T | null;
+  error: PqlError | null;
 }
 
 type UseSubscriptionResponse<T> = [UseSubscriptionState<T>];
@@ -42,8 +42,8 @@ export const useSubscriptionWithQuery = <
 
   const [state, setState] = useState<UseSubscriptionState<R>>({
     fetching: true,
-    error: undefined,
-    data: undefined,
+    error: null,
+    data: null,
   });
 
   const executeSubscription = useCallback(() => {

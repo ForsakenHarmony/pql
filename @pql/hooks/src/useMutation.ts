@@ -4,8 +4,8 @@ import { useState } from 'preact/hooks';
 
 interface UseMutationState<T> {
   fetching: boolean;
-  data?: T;
-  error?: PqlError;
+  data: T | null;
+  error: PqlError | null;
 }
 
 type UseMutationResponse<T, V> = [
@@ -19,12 +19,12 @@ export const useMutation = <T = any, V = object>(
   const client = useClient();
   const [state, setState] = useState<UseMutationState<T>>({
     fetching: false,
-    error: undefined,
-    data: undefined,
+    error: null,
+    data: null,
   });
 
   const executeMutation = (variables?: V) => {
-    setState({ fetching: true, error: undefined, data: undefined });
+    setState({ fetching: true, error: null, data: null });
 
     const request = createRequest(query, variables);
     return client

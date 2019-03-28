@@ -7,11 +7,11 @@ export interface UseSubscriptionArgs<V> {
   variables?: V;
 }
 
-export type SubscriptionHandler<T, R> = (prev: R | void, data: T) => R;
+export type SubscriptionHandler<T, R> = (prev: R | null, data: T) => R;
 
 export interface UseSubscriptionState<T> {
-  data?: T;
-  error?: PqlError;
+  data: T | null;
+  error: PqlError | null;
 }
 
 export type UseSubscriptionResponse<T> = [UseSubscriptionState<T>];
@@ -28,8 +28,8 @@ export const useSubscription = <T = any, R = T, V = object>(
   const request = createRequest(args.query, args.variables);
 
   const [state, setState] = useState<UseSubscriptionState<R>>({
-    error: undefined,
-    data: undefined,
+    error: null,
+    data: null,
   });
 
   const executeSubscription = useCallback(() => {
