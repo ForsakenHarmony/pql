@@ -1,6 +1,6 @@
 {
   "name": "@pql/boost",
-  "version": "0.2.0-alpha.14",
+  "version": "0.2.0-alpha.15",
   "description": "Definitely not a stolen name",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
@@ -12,10 +12,10 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "dependencies": {
-    "@pql/cache": "^0.2.0-alpha.14",
-    "@pql/client": "^0.2.0-alpha.14",
-    "@pql/hooks": "^0.2.0-alpha.14",
-    "@pql/websocket": "^0.2.0-alpha.14"
+    "@pql/cache": "^0.2.0-alpha.15",
+    "@pql/client": "^0.2.0-alpha.15",
+    "@pql/hooks": "^0.2.0-alpha.15",
+    "@pql/websocket": "^0.2.0-alpha.15"
   },
   "peerDependencies": {
     "preact": "^10.0.0-alpha.2"
