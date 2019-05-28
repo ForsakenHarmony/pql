@@ -20,14 +20,17 @@ function generateErrorMessage(
 }
 
 export class PqlError extends Error {
+  __proto__ = Error;
   constructor(
     errorMessage?: string,
     public graphQLErrors: ReadonlyArray<GraphQLError> = [],
     public networkError?: Error
   ) {
     super(errorMessage || generateErrorMessage(graphQLErrors, networkError));
+
     // workaround for ja🅱ascript stupidity
     Object.setPrototypeOf(this, PqlError.prototype);
+    if (Error.captureStackTrace) Error.captureStackTrace(this, PqlError);
   }
 }
 
