@@ -15,8 +15,8 @@
     "@pql/client": "^0.2.0-alpha.9"
   },
   "dependencies": {
-    "babel-plugin-macros": "^2.5.0",
-    "graphql": "^14.2.0"
+    "babel-plugin-macros": "^2.5.1",
+    "graphql": "^14.3.1"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",
