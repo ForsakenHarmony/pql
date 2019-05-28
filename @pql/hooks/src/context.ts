@@ -1,5 +1,5 @@
 import { Client } from '@pql/client';
-import { createContext } from 'preact';
+import { createContext } from 'react';
 
 export const PQLContext = createContext<Client | null>(null);
 export const Provider = PQLContext.Provider;

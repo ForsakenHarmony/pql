@@ -1,6 +1,6 @@
 import { createRequest, OperationResult, PqlError } from '@pql/client';
 import { useClient } from './util';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 interface UseMutationState<T> {
   fetching: boolean;
