@@ -12,10 +12,10 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "peerDependencies": {
-    "@pql/client": "^0.2.0-alpha.9"
+    "@pql/client": "^0.2.0-alpha.16"
   },
   "dependencies": {
-    "babel-plugin-macros": "^2.5.1",
+    "babel-plugin-macros": "^2.6.1",
     "graphql": "^14.3.1"
   },
   "scripts": {

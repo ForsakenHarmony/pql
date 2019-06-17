@@ -12,12 +12,12 @@
   "author": "Leah <me@hrmny.pw>",
   "license": "MIT",
   "peerDependencies": {
-    "@pql/client": "^0.2.0-alpha.15",
+    "@pql/client": "^0.2.0-alpha.16",
     "react": "^16.8.6"
   },
   "devDependencies": {
     "@pql/client": "^0.2.0-alpha.16",
-    "@types/react": "^16.8.18",
+    "@types/react": "^16.8.20",
     "react": "^16.8.6"
   },
   "scripts": {

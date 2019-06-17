@@ -13,10 +13,10 @@
   "license": "MIT",
   "dependencies": {
     "@pql/observable": "^0.2.0-alpha.9",
-    "@types/graphql": "^14.2.0"
+    "@types/graphql": "^14.2.1"
   },
   "peerDependencies": {
-    "graphql": "^14.0.2"
+    "graphql": "^14.0.0"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",
