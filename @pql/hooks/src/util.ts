@@ -1,5 +1,5 @@
 import { Client } from '@pql/client';
-import { useContext } from 'react';
+import { useContext } from 'preact/hooks';
 import { PQLContext } from './context';
 
 export function useClient(): Client {

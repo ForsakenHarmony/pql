@@ -1,6 +1,6 @@
 import { createRequest, Obj, PqlError } from '@pql/client';
 import { noop, useClient } from './util';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'preact/hooks';
 
 export interface UseQueryArgs<V> {
   query: string;
