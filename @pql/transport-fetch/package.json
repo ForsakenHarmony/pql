@@ -1,6 +1,6 @@
 {
   "name": "@pql/fetch",
-  "version": "0.2.0-alpha.17",
+  "version": "0.2.0-alpha.18",
   "description": "Fetch transport for pql",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
@@ -18,7 +18,7 @@
     "@pql/client": "^0.2.0-alpha.17"
   },
   "devDependencies": {
-    "@pql/client": "^0.2.0-alpha.17"
+    "@pql/client": "^0.2.0-alpha.18"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",

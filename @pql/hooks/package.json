@@ -1,6 +1,6 @@
 {
   "name": "@pql/hooks",
-  "version": "0.2.0-alpha.17",
+  "version": "0.2.0-alpha.18",
   "description": "React hooks for pql",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "preact": "^10.0.0-rc.0"
   },
   "devDependencies": {
-    "@pql/client": "^0.2.0-alpha.17",
+    "@pql/client": "^0.2.0-alpha.18",
     "preact": "^10.0.0-rc.0"
   },
   "scripts": {
