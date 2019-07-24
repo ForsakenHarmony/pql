@@ -18,7 +18,7 @@
     "@pql/websocket": "^0.2.0-alpha.17"
   },
   "peerDependencies": {
-    "preact": "^10.0.0-alpha.2"
+    "preact": "^10.0.0-rc.0"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",
