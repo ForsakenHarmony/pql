@@ -1,6 +1,6 @@
 {
   "name": "@pql/cache",
-  "version": "0.2.0-alpha.18",
+  "version": "0.2.0-alpha.19",
   "description": "A lightweight graphql client",
   "source": "src/index.ts",
   "typings": "dist/index.d.ts",
@@ -12,13 +12,13 @@
   "author": "Leah <leah@hrmny.sh>",
   "license": "MIT",
   "dependencies": {
-    "@pql/observable": "^0.2.0-alpha.9"
+    "@pql/observable": "^0.2.0-alpha.19"
   },
   "peerDependencies": {
     "@pql/client": "^0.2.0-alpha.17"
   },
   "devDependencies": {
-    "@pql/client": "^0.2.0-alpha.18"
+    "@pql/client": "^0.2.0-alpha.19"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",
