@@ -1,14 +1,14 @@
 import { createRequest, OperationResult, PqlError } from '@pql/client';
 import { useClient } from './util';
-import { useState } from 'preact/hooks';
+import { useState } from './deps';
 
-interface UseMutationState<T> {
+export interface UseMutationState<T> {
   fetching: boolean;
   data: T | null;
   error: PqlError | null;
 }
 
-type UseMutationResponse<T, V> = [
+export type UseMutationResponse<T, V> = [
   UseMutationState<T>,
   (variables?: V) => Promise<OperationResult<T>>
 ];

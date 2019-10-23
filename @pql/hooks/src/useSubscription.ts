@@ -1,6 +1,6 @@
 import { createRequest, PqlError } from '@pql/client';
 import { noop, useClient } from './util';
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from './deps';
 
 export interface UseSubscriptionArgs<V> {
   query: string;
