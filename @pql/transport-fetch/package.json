@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
   "repository": "ForsakenHarmony/pql",
-  "author": "Leah <me@hrmny.pw>",
+  "author": "Leah <leah@hrmny.sh>",
   "license": "MIT",
   "dependencies": {
     "@pql/observable": "^0.2.0-alpha.9"

@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
   "repository": "ForsakenHarmony/pql",
-  "author": "Leah <me@hrmny.pw>",
+  "author": "Leah <leah@hrmny.sh>",
   "license": "MIT",
   "dependencies": {
     "@pql/cache": "^0.2.0-alpha.18",
@@ -18,7 +18,10 @@
     "@pql/websocket": "^0.2.0-alpha.18"
   },
   "peerDependencies": {
-    "preact": "^10.0.0-rc.0"
+    "preact": "^10.0.1"
+  },
+  "devDependencies": {
+    "preact": "^10.0.1"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",

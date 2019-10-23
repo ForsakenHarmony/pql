@@ -9,14 +9,14 @@
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
   "repository": "ForsakenHarmony/pql",
-  "author": "Leah <me@hrmny.pw>",
+  "author": "Leah <leah@hrmny.sh>",
   "license": "MIT",
   "peerDependencies": {
     "@pql/client": "^0.2.0-alpha.17"
   },
   "dependencies": {
     "babel-plugin-macros": "^2.6.1",
-    "graphql": "^14.4.2"
+    "graphql": "^14.5.8"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",
