@@ -17,9 +17,7 @@
   },
   "devDependencies": {
     "@pql/client": "^0.2.0-alpha.17",
-    "@types/react": "^16.9.9",
-    "preact": "^10.0.1",
-    "react": "^16.10.2"
+    "preact": "^10.0.1"
   },
   "scripts": {
     "watch": "run-p -cls watch:**",
@@ -28,7 +26,6 @@
     "build": "npm-run-all --silent -p build:*",
     "build:ts": "tsc",
     "build:main": "microbundle src/index.ts --no-compress --raw",
-    "build:react": "microbundle src/index.ts --no-compress --raw --alias ./deps=./react-deps -o react",
     "test": "cross-env TS_NODE_PROJECT=tsconfig.test.json ava",
     "clean": "rimraf dist .rts2*"
   },
