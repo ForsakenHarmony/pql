@@ -14,13 +14,13 @@ const createAbortController = () =>
     : new AbortController();
 
 export class FetchTransport implements GqlTransport {
-  private readonly fetch: GlobalFetch['fetch'];
+  private readonly fetch: typeof fetch;
 
   constructor(
     private opts: {
       url: string;
       headers?: { [key: string]: string };
-      fetch?: GlobalFetch['fetch'];
+      fetch?: typeof fetch;
     }
   ) {
     this.fetch = opts.fetch || ((typeof fetch !== 'undefined' && fetch) as any);
